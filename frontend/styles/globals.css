@@ -55,13 +55,46 @@ body {
 .container {
   background-color: #F3F3F3;
   max-width: 100vw;
-  /* margin: 20px auto 0;  */
-  /* padding: 20px; */
   display: flex;
   flex-direction: column;
   justify-content: flex-start, center;
   align-items: center;
   height: 100vh;
+}
+
+/* Ensuring the container takes up the full viewport height */
+.container {
+  background-color: #F3F3F3;
+  max-width: 100vw;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  height: 100vh;
+}
+
+/* Styles for the scoreboard item selected */
+li.bg-gray-500 {
+  background-color: var(--textmaster-gray);
+  color: var(--textmaster-black);
+}
+
+/* Layout for the overall structure */
+.flex {
+  display: flex;
+}
+
+.flex-1 {
+  flex: 1;
+}
+
+/* Sidebar and Scoreboard padding */
+.p-5 {
+  padding: 1.25rem;
+}
+
+.p-10 {
+  padding: 2.5rem;
 }
 
 .back-link {
@@ -133,4 +166,31 @@ a {
 .button-container {
   display: flex;
   justify-content: center;
+}
+
+
+.sidebar {
+  background-color: #F3F3F3;
+  width: 20%;
+  /* Equivalent to w-1/5 */
+  height: 100vh;
+  /* Equivalent to h-screen */
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  /* Equivalent to shadow-lg */
+  font-family: 'Nunito', Arial, Helvetica, sans-serif;
+}
+
+.purple-colored-text li {
+  background-color: transparent;
+  color: #4F46E5;
+}
+
+.purple-colored-text li.bg-purple-500 {
+  background-color: #4F46E5;
+  color: white;
+}
+
+.purple-colored-text li:hover {
+  background-color: #4F46E5;
+  color: white;
 }
