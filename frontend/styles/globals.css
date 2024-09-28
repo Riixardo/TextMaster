@@ -194,3 +194,9 @@ a {
   background-color: #4F46E5;
   color: white;
 }
+
+/* For even placement background color */
+.leaderboard-card:nth-child(even) {
+  background-color: var(--textmaster-purple);
+  color: white; 
+}
