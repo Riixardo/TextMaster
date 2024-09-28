@@ -1,115 +1,91 @@
-import Image from "next/image";
-import localFont from "next/font/local";
+import React from 'react';
+import { useRouter } from 'next/router';
 
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
-});
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
-});
 
-export default function Home() {
-  return (
-    <div
-      className={`${geistSans.variable} ${geistMono.variable} grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]`}
-    >
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              pages/index.js
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+export default function Index() {
+    const router = useRouter();
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    const handleLoginClick = () => {
+      router.push('/login');
+    };
+
+    const handleSignupClick = () => {
+      router.push('/sign_up');
+    };
+
+    return (
+        <div style={styles.container}>
+            <button style={styles.loginButton} onClick={handleLoginClick}>Login</button>
+            <div style={styles.border}></div>
+            <p style={styles.text1}>Accelerate your learning with Textmaster</p>
+            <p style={styles.text2}>Learn languages faster, score higher, and compete with friends globally</p>
+            <div style={styles.buttonContainer}>
+                {/* <button style={styles.signUpButton}>See Features</button> */}
+                <button style={styles.signUpButton} onClick={handleSignupClick}>Sign Up</button>
+            </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
-  );
+    );
 }
+
+const styles = {
+  container: {
+      position: 'relative',
+      height: '100vh', // Full viewport height
+      width: '100vw',  // Full viewport width
+  },
+  loginButton: {
+      position: 'absolute',
+      top: '10px',
+      right: '30px',
+      padding: '5px 10px', // Reduced padding
+      width: '70px', // Fixed width to 1/4 size
+      backgroundColor: '#4F46E5', // Textmaster purple
+      color: 'white',
+      border: 'none',
+      borderRadius: '15px',
+      cursor: 'pointer',
+  },
+  border: {
+    position: 'absolute',
+    top: '45px', // Adjust this value to position the border below the button
+    right: '30px',
+    width: '95vw', // Match the width of the button
+    height: '2px', // Height of the border
+    backgroundColor: 'black', // Color of the border
+  },
+  text1: {
+    position: 'absolute',
+    top: '60px', // Adjust this value to position the text below the border
+    left: '50%',
+    transform: 'translateX(-50%)',
+    color: '#4F46E5', // Textmaster purple
+    fontSize: '32px', // Adjust font size as needed
+    fontWeight: 'bold', // Make the font bold
+  },
+  text2: {
+      position: 'absolute',
+      top: '120px',
+      left: '50%',
+      transform: 'translateX(-50%)',
+      color: '#A3A3A3', // Textmaster purple
+      fontSize: '16px', // Adjust font size as needed
+      fontWeight: 'bold', // Make the font bold
+  },
+  buttonContainer: {
+    position: 'absolute',
+    top: '200px', // Adjust this value to position the buttons below the text
+    left: '50%',
+    transform: 'translateX(-50%)',
+    display: 'flex',
+    gap: '10px', // Space between the buttons
+  },
+  signUpButton: {
+      padding: '5px 10px', // Reduced padding
+      width: '70px', // Fixed width to 1/4 size
+      backgroundColor: '#4F46E5', // Textmaster purple
+      color: 'white',
+      border: 'none',
+      borderRadius: '15px',
+      cursor: 'pointer',
+  },
+};

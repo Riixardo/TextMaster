@@ -195,6 +195,11 @@ a {
   color: white;
 }
 
+/* For even placement background color */
+.leaderboard-card:nth-child(even) {
+  background-color: var(--textmaster-purple);
+  color: white; 
+}
 
 .score-board {
   background-color: #ffffff; /* Equivalent to bg-gray-100 */
@@ -206,5 +211,4 @@ a {
     display: flex;
       flex-direction: column;
       justify-content: space-between;
-
 }
