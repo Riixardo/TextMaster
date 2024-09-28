@@ -2,9 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap');
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
+
+  /* Colours Textmaster */
+  --textmaster-purple: #4F46E5;
+  --textmaster-blue: #665FE2;
+  --textmaster-light-gray: #535353;
+  --textmaster-gray: #282828;
+  --textmaster-black: #171717;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -17,11 +26,28 @@
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Nunito', Arial, Helvetica, sans-serif;
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
   }
+}
+
+/* LHS buttons in home page */
+.home-button {
+  background-color: var(--textmaster-purple);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+  width: 200px;
+}
+
+.home-button.selected {
+  background-color: white;
+  color: var(--textmaster-purple);
 }
