@@ -1,7 +1,8 @@
 from flask import Flask, request, jsonify
-from flask_socketio import SocketIO, join_room, leave_room, emit
+from flask_socketio import SocketIO, join_room, emit, leave_room
 from flask_cors import CORS
 import hashlib
+import db_functions
 
 app = Flask(__name__)
 CORS(app)  
@@ -18,37 +19,40 @@ def hash_string(string):
 
 @socketio.on('create_room')
 def handle_create_room(data):
+    print("Creating room...\n")
     creator = data['creator']
     room = hash_string(creator)
-    if room not in rooms:
-        rooms[room] = [creator]
-        join_room(room)
-        print(request.sid)
-        emit('room_created', {'message': f'Room {room} created for {creator}', 'room': room, 'creator': creator, 'players': rooms[room]}, room=request.sid)
-    else:   
-        emit('error', {'message': f'Error: Cannot create more than one room!'}, room=request.sid)
+    print("Room created successfully.\n")
+    db_functions.create_lobby(room, data['creator_id'], data['game_mode'], data['difficulty'], data['max_players'])
+    players = db_functions.view_lobby(room)
+    join_room(room)
+    emit('room_created', {'message': f'Room {room} created for {creator}', 'room': room, 'creator': creator, 'players': players}, room=request.sid)
 
 @socketio.on('join_room')
 def handle_join_room(data):
     room = data['room']
     user = data['user']
-    rooms[room].append(user)
+    db_functions.join_lobby(room, data['user_id'])
+    players = db_functions.view_lobby(room)
     join_room(room)
-    print(request.sid)
-    emit('room_joined', {'message': f'User joined {room}', 'room': room, 'user': user, 'players': rooms[room]}, room=request.sid)
-    emit('room_updated', {'message': f'User joined {room}', 'room': room, 'user': user, 'players': rooms[room]}, room=room)
+    print(f'User {user} joined room {room}.')
+    emit('room_joined', {'message': f'User joined {room}', 'room': room, 'user': user, 'players': players}, room=request.sid)
+    emit('room_updated', {'message': f'User joined {room}', 'room': room, 'user': user, 'players': players}, room=room)
 
 @socketio.on('leave_room')
 def handle_leave_room(data):
     room = data['room']
     user = data['user']
-    rooms[room].remove(user)
+    print("APDOKWAPDOAWD")
+    db_functions.leave_lobby(room, data['user_id'])
+    players = db_functions.view_lobby(room)
+    print(players)
     leave_room(room)
-    emit('room_update', {'message': f'User left {room}', 'room': room, 'user': user, 'players': rooms[room]}, room=room)
+    emit('room_updated', {'message': f'User left {room}', 'room': room, 'user': user, 'players': players}, room=room)
 
-@app.route('/api/hello', methods=['GET'])
+@app.route('/api/get/room', methods=['GET'])
 def hello():
     return jsonify(message='Hello from Flask!')
 
 if __name__ == '__main__':
-    socketio.run(app, debug=True, port=5000)
+   socketio.run(app, port=5000, debug=True)

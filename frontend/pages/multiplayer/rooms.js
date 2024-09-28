@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import React from "react";
-import Sidebar from "../components/side_bar";
-import RoomBlock from "../components/room";
+import Sidebar from "@/components/side_bar";
+import RoomBlock from "../../components/room";
 
 const Rooms = ({ joinRoom }) => {
 
@@ -17,7 +17,7 @@ const Rooms = ({ joinRoom }) => {
                     <h1 className="w-full text-center">Join Rooms</h1>
                 </div>
                 <div className="w-full ml-auto bg-white grid grid-cols-4">
-                    <RoomBlock text="Frankisdank's room" id="0302fef5975541f25b95b7b1edb1d8346965e130ca7e35c3253f019663b73cbe" joinRoom={joinRoom}></RoomBlock>
+                    <RoomBlock text="Frankisdank's room" id="cb751553102143a57337435e9540174863efabe3931a114fab4a64ba4fd6bc29" joinRoom={joinRoom}></RoomBlock>
                     <RoomBlock text="Frankisdank's room" id="2"></RoomBlock>
                     <RoomBlock text="Frankisdank's room" id="3"></RoomBlock>
                     <RoomBlock text="Frankisdank's room" id="4"></RoomBlock>
