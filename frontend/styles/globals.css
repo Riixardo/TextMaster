@@ -170,7 +170,7 @@ a {
 
 
 .sidebar {
-  background-color: #F3F3F3;
+  background-color: #ffffff;
   width: 20%;
   /* Equivalent to w-1/5 */
   height: 100vh;
@@ -195,8 +195,16 @@ a {
   color: white;
 }
 
-/* For even placement background color */
-.leaderboard-card:nth-child(even) {
-  background-color: var(--textmaster-purple);
-  color: white; 
+
+.score-board {
+  background-color: #ffffff; /* Equivalent to bg-gray-100 */
+  width: 20%; /* Equivalent to w-1/5 */
+  height: 100vh; /* Equivalent to h-screen */
+  padding: 1.5rem; /* Equivalent to p-6 */
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* Equivalent to shadow-lg */
+  font-family: 'Nunito', Arial, Helvetica, sans-serif;
+    display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+
 }
