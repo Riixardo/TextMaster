@@ -3,12 +3,23 @@ from flask_socketio import SocketIO, join_room, emit, leave_room
 from flask_cors import CORS
 import hashlib
 import db_functions
+from openai import OpenAI
+
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+import os
+from dotenv import load_dotenv
+
+from app.openai_api import generate_prompt
 
 app = Flask(__name__)
 CORS(app)  
 socketio = SocketIO(app, cors_allowed_origins='*')  
 
+load_dotenv()
+
 rooms = {}
+
+# Set your OpenAI API key
 
 def hash_string(string):
     # Create a hash object using SHA-256
@@ -50,9 +61,29 @@ def handle_leave_room(data):
     leave_room(room)
     emit('room_updated', {'message': f'User left {room}', 'room': room, 'user': user, 'players': players}, room=room)
 
-@app.route('/api/get/room', methods=['GET'])
-def hello():
-    return jsonify(message='Hello from Flask!')
+@app.route('/generate_prompt', methods=['POST'])
+def handle_generate_prompt():
+    generated_prompt = generate_prompt()
+    return jsonify({'generated_text': generated_prompt}), 200
+
+@app.route('/generate_prompt', methods=['POST'])
+def ai_response_prompt(previous_conversation, prompt):
+    generated_prompt = ai_response_prompt(previous_conversation, prompt)
+    return jsonify({'ai_response_text': generated_prompt}), 200
+
+
+# @app.route('/api/hello', methods=['GET'])
+# def hello():
+#     return jsonify(message='Hello from Flask!')
+
+
+# def generate_prompt():
+#     response = client.chat.completions.create(model="gpt-4",
+#     messages=[
+#         {"role": "system", "content": "You are an useful program that will do anything to help the user, making sure you satisfy the user to the best of your abilities"},
+#         {"role": "user", "content": "Generate me a prompt that is 2-3 sentences long, that are designed to be graded for english texting fluency, make sure the prompt is engaging and interesting. and most importantly will show up regularlly in everyday online conversations"}
+#     ])
+#     return response.choices[0].message.content.strip()
 
 if __name__ == '__main__':
    socketio.run(app, port=5000, debug=True)
