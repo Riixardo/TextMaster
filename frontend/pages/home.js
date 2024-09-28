@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import React from "react";
+import Sidebar from "@/components/side_bar";
 
 const Home = () => {
     const [selectedButton, setSelectedButton] = useState(null);
@@ -17,21 +18,8 @@ const Home = () => {
     };
 
     return (
-        <div className="min-h-screen w-screen" style={{backgroundColor: 'var(--background)', fontFamily: 'Nunito, sans-serif'}}>
-            <h1 ref={headingRef} style={{ position: 'absolute', top: '0', left: '10px', margin: '30px', color: 'var(--textmaster-purple)', fontSize: '48px', fontWeight: '700' }}>textmaster</h1>
-
-            <div style={{ display: 'flex', flexDirection: 'column', position: 'absolute', left: '10px', top: '100px', fontWeight: '700' }}>
-                {['Home', 'Multiplayer', 'Singleplayer', 'Leaderboard', 'Shop'].map((buttonText, index) => (
-                    <button
-                        key={index}
-                        className={`home-button ${selectedButton === index ? 'selected' : ''}`}
-                        onClick={() => handleButtonClick(index)}
-                        style={{ width: buttonWidth }}
-                    >
-                        {buttonText}
-                    </button>
-                ))}
-            </div>
+        <div className="min-h-screen w-screen" style={{backgroundColor: 'var(--background)' }}>
+            <Sidebar selectedButton={selectedButton} handleButtonClick={handleButtonClick} buttonWidth={buttonWidth} />
         </div>
     );
 };

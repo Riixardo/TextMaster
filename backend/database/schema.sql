@@ -7,7 +7,7 @@ DROP TYPE IF EXISTS MISSION CASCADE;
 DROP TABLE IF EXISTS users CASCADE;
 DROP TABLE IF EXISTS user_stats CASCADE;
 
-DROP TABLE IF EXISTS multiplayer_games CASCADE;
+DROP TABLE IF EXISTS games CASCADE;
 DROP TABLE IF EXISTS player_game_stats CASCADE;
 DROP TABLE IF EXISTS leaderboard CASCADE;
 
@@ -25,6 +25,8 @@ DROP TABLE IF EXISTS user_thread CASCADE;
 -------------------------------------------------------------------------------------------------
 
 CREATE TYPE DIFFICULTY AS ENUM ('novice', 'seasoned', 'master');
+
+CREATE TYPE PLAYERMODE AS ENUM ('singleplayer', 'multiplayer');
 
 -- For timed: the number is in minutes
 -- For untimed: the number of number of messages user must complete
@@ -48,37 +50,45 @@ CREATE TABLE users (
 
 -- time_played: The time the user has played in seconds
 -- global ranking will be computed at regular intervals to reduce constant delays
+
+-- todo: change win_rate out for wins and losses.
+-- todo: potentially think abt the runtime of global_ranking
 CREATE TABLE user_stats (
     user_id TEXT PRIMARY KEY,
-    elo INT NOT NULL CHECK (elo >= 0),
     games_played INT NOT NULL,
     time_played INT NOT NULL CHECK (time_played > 0),
-    win_rate FLOAT NOT NULL CHECK (win_rate > 0 AND win_rate <= 100),
+    games_won INT NOT NULL,
+    games_lost INT NOT NULL,
     global_ranking INT NOT NULL,
+    gems INT NOT NULL,
+    coins INT NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users(user_id)
 );
 
 -- A multiplayer game instance
-CREATE TABLE multiplayer_games (
+CREATE TABLE games (
     game_id SERIAL PRIMARY KEY,
-    game_time TIMESTAMP DEFAULT NOW(),
+    player_mode PLAYERMODE not null,
+    start_time TIMESTAMP DEFAULT NOW(),
+    topic TEXT NOT NULL,
     difficulty DIFFICULTY NOT NULL,
-    gamemode GAMEMODE NOT NULL,
+    game_mode GAMEMODE NOT NULL,
     average_elo INT NOT NULL CHECK (average_elo >= 0)
 );
 
 -- Needed since we possibly have multiple players per game
 CREATE TABLE player_game_stats (
-    game_id INT PRIMARY KEY,
+    game_id INT NOT NULL,
     user_id TEXT NOT NULL,
-    score FLOAT NOT NULL,
+    PRIMARY KEY(game_id, user_id),
+    elo_difference INT NOT NULL,
+    accuracy FLOAT NOT NULL,
     highest_combo INT NOT NULL,
     FOREIGN KEY (game_id) REFERENCES multiplayer_games(game_id),
     FOREIGN KEY (user_id) REFERENCES users(user_id)
 );
 
 -- I'll only put in ELO for now
--- Stores the top 10 people in terms of ELO
 -- Is computed at regular intervals, same time as when rankings are computed
 CREATE TABLE leaderboard (
     user_id TEXT PRIMARY KEY,
@@ -96,15 +106,20 @@ CREATE TABLE missions (
 );
 
 -- I'll assume for now we won't store past daily missions
+-- always has size 3
 CREATE TABLE daily_missions (
-    mission_id INT NOT NULL
+    mission_id INT NOT NULL,
+    FOREIGN KEY (mission_id) REFERENCES missions(mission_id)
 );
 
 -- Records which daily missions the user has completed
+-- Wipe every day
 CREATE TABLE user_daily_completions (
     user_id TEXT NOT NULL,
     mission_id INT NOT NULL,
-    PRIMARY KEY (user_id, mission_id)
+    PRIMARY KEY (user_id, mission_id),
+    FOREIGN KEY (user_id) REFERENCES users(user_id),
+    FOREIGN KEY (mission_id) REFERENCES missions(mission_id)
 );
 
 CREATE TABLE settings (
