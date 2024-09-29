@@ -25,7 +25,7 @@ const Leaderboard = () => {
     ];
 
     return (
-        <div className="min-h-screen w-screen" style={{ display: 'flex' }}>
+        <div className="min-h-screen w-screen" style={{ display: 'flex', backgroundColor: '#FFFFFF' }}>
             <Sidebar selectedButton={selectedButton} handleButtonClick={handleButtonClick} buttonWidth={buttonWidth} />
 
             <div style={{ marginLeft: '20px', flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>

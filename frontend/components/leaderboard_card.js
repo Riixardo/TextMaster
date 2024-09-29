@@ -2,7 +2,7 @@ import React from "react";
 
 export default function LeaderboardCard({ placing, username, points, profilePic }) {
     return (
-        <div className="leaderboard-card" style={styles.card}>
+        <div className="leaderboard-card text-black" style={styles.card}>
             <div style={styles.placing}>{placing}</div>
             <img src={profilePic} alt={`${username}'s profile`} style={styles.profilePic} />
             <div style={styles.username}>{username}</div>
