@@ -49,11 +49,13 @@ def handle_create_room(data):
 def handle_join_room(data):
     room = data['room']
     user = data['user']
-    db_functions.join_lobby(room, data['user_id'])
+    if db_functions.join_lobby(room, data['user_id']) == -1:
+        emit('room_joined', {'message': f'Room {room} is full', 'room': room, 'user': user, 'players': players, 'status': -1}, room=request.sid)
+        return
     players = db_functions.view_lobby(room)
     join_room(room)
     print(f'User {user} joined room {room}.')
-    emit('room_joined', {'message': f'User joined {room}', 'room': room, 'user': user, 'players': players}, room=request.sid)
+    emit('room_joined', {'message': f'User joined {room}', 'room': room, 'user': user, 'players': players, 'status': 0}, room=request.sid)
     emit('room_updated', {'message': f'User joined {room}', 'room': room, 'user': user, 'players': players}, room=room)
 
 @socketio.on('leave_room')
@@ -114,8 +116,14 @@ def ai_response_prompt():
     ])
     return jsonify({"status": "success", "content": response.choices[0].message.content.strip()})
 
-
+@app.route('/ai_response', methods=['POST'])
 def grade_user_responses(previous_conversation, prompt):
+    data = request.json
+    previous_conversation = data.get("previous_conversation")
+    prompt = data.get("prompt")
+    thread_id = data.get("thread_id")
+
+
     prev_convo = ""
     is_AI = True
     for convo in previous_conversation:
@@ -144,7 +152,6 @@ def grade_user_responses(previous_conversation, prompt):
             for small_part in line.split(","):
                 smaller_part = small_part.split(":")
                 grades[smaller_part[0]] = int(smaller_part[1])
-    
     return grades
 
 
@@ -164,7 +171,6 @@ def send_message():
         return jsonify({"error": "Failed to generate message_id"}), 500
 
     # Call the send_message function
-    print("what's up")
     try:
         db_functions.send_message(message_id, user_id, thread_id, content)
         return jsonify({"status": "success", "message_id": message_id})
@@ -179,7 +185,8 @@ def signup():
     username = data.get('username')
     email = data.get('email')
     password = data.get('password')
-    return jsonify(db_functions.create_user(username, email, password))
+    randomStringId = username + "lovestext"
+    return jsonify(db_functions.create_user(randomStringId, username, email, password))
 
 @app.route('/login', methods=['POST'])
 def login():
@@ -296,6 +303,7 @@ def update_score():
 def get_leaderboard():
     data = request.json
     match_id = data.get('id')
+    print("APWDKPAKDPAWOD")
     print(match_id)
     if not match_id:
         return jsonify({'error': 'match_id is required'}), 400
@@ -304,6 +312,7 @@ def get_leaderboard():
         game_info = GameInfo()
         res = game_info.get_leaderboard(match_id)
         print('Leaderboard data:', res)
+
         return jsonify(res)
     except Exception as e:
         return jsonify({'error': str(e)}), 500

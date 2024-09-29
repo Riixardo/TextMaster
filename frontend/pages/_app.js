@@ -28,6 +28,10 @@ export default function App({ Component, pageProps }) {
 
     socket.on('room_joined', (data) => {
       console.log(data);
+      if (data['status'] == -1) {
+        alert("ROOM IS FULL");
+        return;
+      }
       setPlayers(data['players'])
       router.push(`/multiplayer/room/${data['room']}`);
     });

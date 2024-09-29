@@ -157,7 +157,6 @@ def get_global_rank(user_id):
     
 # untested
 def create_user(user_id, username, email, password):
-    randomStringId = username + "lovesslaves"
     try:
         conn = psycopg2.connect(db_url)
         cursor = conn.cursor()
@@ -171,9 +170,8 @@ def create_user(user_id, username, email, password):
         conn.commit()
         cursor.close()
         conn.close()
-        # TODO figure this out later
-        #create_user_leaderboard(randomStringId, 100)
-        #create_user_stats(user_id, 0, 0, 0, 0, get_global_rank(randomStringId), 0, 0)
+        create_user_leaderboard(user_id, 100)
+        create_user_stats(user_id, 0, 0, 0, 0, get_global_rank(user_id), 0, 0)
         return {"status": 0, "user_id": user_id, "username": username}
 
     except psycopg2.Error as e:
