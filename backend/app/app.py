@@ -62,7 +62,6 @@ def handle_join_room(data):
 def handle_leave_room(data):
     room = data['room']
     user = data['user']
-    print("APDOKWAPDOAWD")
     db_functions.leave_lobby(room, data['user_id'])
     players = db_functions.view_lobby(room)
     print(players)
@@ -120,6 +119,8 @@ def ai_response_prompt():
             {"role": "system", "content": "You are an competent but easy conversation program, you should behave like one, that is trying to have a normal conversation with the user, make sure you best mimic how a normal human would engage in the conversation."},
             {"role": "user", "content": f"The starting conversation topic is {prompt}. Here's the previous conversation that has been talked about so far: {prev_convo}. Generate me the a starting piece to this prompt like an online text conversation, try to come up with personalized example based on the prompt, include that in the first reponse, keep the responses between 1 to 2 sentences, only include what you say to the person in the response."}
     ])
+    message_id = db_functions.generate_new_message_id()
+    db_functions.send_message(message_id, "1", thread_id, response.choices[0].message.content.strip())
     return jsonify({"status": "success", "content": response.choices[0].message.content.strip()})
 
 @app.route('/ai_grade', methods=['POST'])
@@ -155,7 +156,6 @@ def grade_user_responses():
     grades = {}
     for line in response_text.split('\n'):
         if ':' in line:
-            print(line)
             for small_part in line.split(","):
                 smaller_part = small_part.split(":")
                 grades[smaller_part[0]] = int(smaller_part[1])
@@ -311,15 +311,12 @@ def update_score():
 def get_leaderboard():
     data = request.json
     match_id = data.get('id')
-    print("APWDKPAKDPAWOD")
-    print(match_id)
     if not match_id:
         return jsonify({'error': 'match_id is required'}), 400
 
     try:
         game_info = GameInfo()
-        res = game_info.get_scoreboard(match_id)
-        print('Leaderboard data:', res)
+        res = game_info.get_leaderboard(match_id)
 
         return jsonify(res)
     except Exception as e:
