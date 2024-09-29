@@ -8,11 +8,19 @@ import axios from "axios";
 const Home = () => {
     const [selectedButton, setSelectedButton] = useState(null);
     const [username, setUsername] = useState(null);
+    const [userStats, setUserStats] = useState(null);
     const headingRef = useRef(null);
     const [buttonWidth, setButtonWidth] = useState('auto');
 
+    const getUserStats = async () => {
+        const response = await axios.post("http://127.0.0.1:5000/get_user_stats", {user_id: sessionStorage.getItem("user_id")});
+        setUserStats(response.data.stats);
+    }
+
     useEffect(() => {
         setUsername(sessionStorage.getItem("username"));
+        getUserStats();
+        
         if (headingRef.current) {
             setButtonWidth(headingRef.current.offsetWidth);
         }
@@ -35,7 +43,7 @@ const Home = () => {
                         {username} <span className="text-sm">Level 32</span>
                     </h2>}
                     <div className="flex space-x-8 mt-2" style={{ color: 'black' }}>
-                        <p>win rate: 56%</p>
+                        {userStats && <p>win rate: 56%</p>}
                         <p>global position: #1032</p>
                         <p>games played: 55</p>
                         <p>total playtime: 10.5 hours</p>

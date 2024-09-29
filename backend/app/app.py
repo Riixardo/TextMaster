@@ -157,6 +157,12 @@ def login():
     password = data.get('password')
     return jsonify(db_functions.login_user(username, password))
 
+@app.route('/get_user_stats', methods=['POST'])
+def get_user_stats():
+    data = request.json
+    user_id = data.get('user_id')
+    return jsonify(db_functions.get_user_stats(user_id))
+
 @app.route('/create_user_stats', methods=['POST'])
 def handle_create_user_stats(user_id, games_played, time_played, games_won, games_lost, global_ranking, gems, coins):
     try:
