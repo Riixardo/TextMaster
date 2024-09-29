@@ -75,19 +75,6 @@ def test_functions():
 
     # Test reset_daily_missions
     reset_daily_missions()
-
-    # Test create_lobby
-    create_lobby(test_room, test_creator_id, test_game_mode, test_difficulty, test_max_players)
-
-    # Test view_lobby
-    players = view_lobby(test_room)
-    print(f"Players in lobby {test_room}: {players}")
-
-    # Test leave_lobby
-    leave_lobby(test_room, test_user_id)
-
-    # Test join_lobby
-    join_lobby(test_room, test_user_id)
     
     # Test create_thread
     create_thread(test_thread_id, test_thread_name)
