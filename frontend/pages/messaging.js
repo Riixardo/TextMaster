@@ -5,7 +5,6 @@ import Image from 'next/image';
 import robotIcon from '../public/Profile-Picture-AI 1.png';
 import { useRouter } from 'next/router';
 import axios from 'axios';
-import axios from 'axios';
 
 export default function Messaging() {
   const [messages, setMessages] = useState([]);
@@ -14,7 +13,7 @@ export default function Messaging() {
   const [matchId, setMatchId] = useState(null); // Initialize match_id state
   const [leaderboard, setLeaderboard] = useState([]); // Initialize leaderboard state
   const [loadingLeaderboard, setLoadingLeaderboard] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setLoading] = useState(true);
 
   const getMessages = () => {
     return messages;
@@ -89,31 +88,65 @@ export default function Messaging() {
 
 
 
-  useEffect(() => {
-    const mID = sessionStorage.getItem('matchId');
-    const uID = sessionStorage.getItem('user_id');
+  // useEffect(() => {
+  //   const mID = sessionStorage.getItem('matchId');
+  //   const uID = sessionStorage.getItem('user_id');
     
-    setMatchId(mID || 'chinatown');
-    setUserId(uID || '');
-  }, []);
+  //   setMatchId(mID || 'chinatown');
+  //   setUserId(uID || '');
+  // }, []);
 
+  // useEffect(() => {
+  //   const fetchLeaderboard = async () => {
+  //     if (matchId && userId) {
+  //       try {
+  //         const data = await get_leaderboard(matchId);
+  //         setLeaderboard(data);
+  //         console.log('leaderboard:', data);
+  //       } catch (error) {
+  //         console.error('Error fetching leaderboard:', error);
+  //       } finally {
+  //         setIsLoading(false);
+  //       }
+  //     }
+  //   };
+
+  //   fetchLeaderboard();
+  // }, [matchId, userId]);
   useEffect(() => {
-    const fetchLeaderboard = async () => {
-      if (matchId && userId) {
-        try {
-          const data = await get_leaderboard(matchId);
-          setLeaderboard(data);
-          console.log('leaderboard:', data);
-        } catch (error) {
-          console.error('Error fetching leaderboard:', error);
-        } finally {
-          setIsLoading(false);
-        }
-      }
-    };
+  const mID = sessionStorage.getItem('matchId');
+  const uID = sessionStorage.getItem('user_id');
+  if (mID) {
+    setMatchId(mID);
+  } else {
+    setMatchId('chinatown');
+  }
 
-    fetchLeaderboard();
-  }, [matchId, userId]);
+  if (uID) {
+    setUserId(uID);
+  }
+}, []);
+
+useEffect(() => {
+  const fetchLeaderboard = async () => {
+    try {
+      const data = await get_leaderboard(matchId);
+      setLeaderboard(data);
+      console.log('leaderboard:', data);
+    } catch (error) {
+      console.error('Error fetching leaderboard:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (matchId && userId) {
+    fetchLeaderboard(); // Initial fetch
+    const intervalId = setInterval(fetchLeaderboard, 1000); // Fetch every second
+
+    return () => clearInterval(intervalId); // Cleanup interval on component unmount
+  }
+}, [matchId, userId]);
 
 
 // // Ensure matchId, userId, and leaderboard are set before rendering the main content
@@ -122,7 +155,7 @@ export default function Messaging() {
 // }
 
 // Ensure matchId, userId, and leaderboard are set before rendering the main content
-if (!matchId || !userId || leaderboard.length === 0) {
+if (!matchId || !userId) {
   return <div>`Loading`...</div>; // Render a loading indicator while waiting for matchId, userId, and leaderboard
 }
 
