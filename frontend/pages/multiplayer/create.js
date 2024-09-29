@@ -5,15 +5,12 @@ import Sidebar from "@/components/side_bar";
 const Create = ({ createRoom }) => {
 
     // hard coded for now
-    const username = "frankisdank";
-    const user_id = "franklovesslaves";
+    const username = sessionStorage.getItem("username");
+    const user_id = sessionStorage.getItem("user_id");
 
-    // const game_mode = "timed 3";
-    // const difficulty = "novice";
-    const max_players = 8;
-
-    const [difficulty, setDifficulty] = useState("easy");
+    const [difficulty, setDifficulty] = useState("novice");
     const [time, setTime] = useState(1);
+    const [maxPlayers, setMaxPlayers] = useState(8);
     const [visibility, setVisibility] = useState('private');
     const [selectedButton, setSelectedButton] = useState(null);
 
@@ -42,16 +39,16 @@ const Create = ({ createRoom }) => {
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'left', marginLeft: '100px', gap: '265px'}}>
                     <label>
-                        <input type = "radio" value= "easy" checked ={difficulty === 'easy'} onChange={() => setDifficulty('easy')} />
-                        Easy
+                        <input type = "radio" value= "novice" checked ={difficulty === 'novice'} onChange={() => setDifficulty('novice')} />
+                        Novice
                     </label>
                     <label>
-                        <input type = "radio" value= "medium" checked ={difficulty === 'medium'} onChange={() => setDifficulty('medium')} />
-                        Medium
+                        <input type = "radio" value= "seasoned" checked ={difficulty === 'seasoned'} onChange={() => setDifficulty('seasoned')} />
+                        Seasoned
                     </label>
                     <label>
-                        <input type = "radio" value= "hard" checked ={difficulty === 'hard'} onChange={() => setDifficulty('hard')} />
-                        Hard
+                        <input type = "radio" value= "master" checked ={difficulty === 'master'} onChange={() => setDifficulty('master')} />
+                        Master
                     </label>  
                 </div>    
             </div>
@@ -70,9 +67,33 @@ const Create = ({ createRoom }) => {
                         3 minutes 
                     </label>
                     <label>
-                        <input type = "radio" value= "5" checked ={difficulty === 5} onChange={() => setTime(5)} />
+                        <input type = "radio" value= "5" checked ={time === 5} onChange={() => setTime(5)} />
                         5 minutes 
                     </label>  
+                </div>    
+            </div>
+
+            <div style = {{backgroundColor: '#e0e0e0', padding: '25px', borderRadius: '10px', marginBottom: '20px'}}>
+                <div style={{textAlign: 'left', marginLeft: '100px', paddingBottom: '7.5px'}}>
+                    <h2 style={{color: '#000000', fontWeight: 900}}>Visibility: </h2>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'left', marginLeft: '100px', gap: '260px' }}>
+                    <label>
+                        <input type = "radio" value= "2" checked ={maxPlayers === "2"} onChange={() => setMaxPlayers('2')} />
+                        2
+                    </label>
+                    <label>
+                        <input type = "radio" value= "3" checked ={maxPlayers === "3"} onChange={() => setMaxPlayers('3')} />
+                        3
+                    </label>
+                    <label>
+                        <input type = "radio" value= "2" checked ={maxPlayers === "2"} onChange={() => setMaxPlayers('2')} />
+                        2
+                    </label>
+                    <label>
+                        <input type = "radio" value= "3" checked ={maxPlayers === "3"} onChange={() => setMaxPlayers('3')} />
+                        3
+                    </label>
                 </div>    
             </div>
 
@@ -92,7 +113,7 @@ const Create = ({ createRoom }) => {
                 </div>    
             </div>
             <div style={{textAlign:'right', width:'1000px'}}>
-                <button onClick={() => createRoom(username, user_id, time, difficulty, max_players)}> start game </button>
+                <button onClick={() => createRoom(username, user_id, "timed " + time, difficulty, maxPlayers)}> start game </button>
             </div>
         </div>
     </div>

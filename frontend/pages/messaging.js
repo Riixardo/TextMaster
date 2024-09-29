@@ -5,7 +5,6 @@ import Image from 'next/image';
 import robotIcon from '../public/Profile-Picture-AI 1.png';
 import { useRouter } from 'next/router';
 import axios from 'axios';
-import axios from 'axios';
 
 export default function Messaging() {
   const [messages, setMessages] = useState([]);
@@ -71,7 +70,7 @@ export default function Messaging() {
 
   const get_leaderboard = async (matchId) => {
     try {
-      const response = await axios.post(`http://localhost:5000/api/get_leaderboard`, {
+      const response = await axios.post(`http://127.0.0.1:5000/api/get_leaderboard`, {
         id: matchId,
       });
 
