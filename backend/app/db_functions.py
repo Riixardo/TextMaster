@@ -156,7 +156,7 @@ def get_global_rank(user_id):
         return None
     
 # untested
-def create_user(username, email, password):
+def create_user(user_id, username, email, password):
     randomStringId = username + "lovesslaves"
     try:
         conn = psycopg2.connect(db_url)
@@ -167,13 +167,14 @@ def create_user(username, email, password):
         VALUES (%s, %s, %s, %s, %s);
         """
 
-        cursor.execute(sql_command, [randomStringId, username, email, password, "LOL"])
+        cursor.execute(sql_command, [user_id, username, email, password, "LOL"])
         conn.commit()
         cursor.close()
         conn.close()
-        create_user_leaderboard(randomStringId, 100)
-        create_user_stats(randomStringId, 0, 0, 0, 0, get_global_rank(randomStringId), 0, 0)
-        return {"status": 0, "user_id": randomStringId, "username": username}
+        # TODO figure this out later
+        #create_user_leaderboard(randomStringId, 100)
+        #create_user_stats(user_id, 0, 0, 0, 0, get_global_rank(randomStringId), 0, 0)
+        return {"status": 0, "user_id": user_id, "username": username}
 
     except psycopg2.Error as e:
         print(f"Error: {e}")
@@ -480,6 +481,7 @@ def send_message(message_id, user_id, thread_id, content):
         cursor = conn.cursor()
         cursor.execute(sql_commands1, [message_id, user_id, thread_id, content, datetime.now()])
 
+        conn.commit()
 
         cursor.close()
         conn.close()

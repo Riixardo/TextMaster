@@ -81,13 +81,14 @@ def handle_ai_response_prompt(previous_conversation, prompt):
     generated_prompt = ai_response_prompt(previous_conversation, prompt)
     return jsonify({'ai_response_text': generated_prompt}), 200
 
+
 def generate_prompt(prompt_diffculty):
     response = client.chat.completions.create(model="gpt-4",
     messages=[
         {"role": "system", "content": "You are an useful program that will do anything to help the user, making sure you satisfy the user to the best of your abilities"},
         {"role": "user", "content": f"Generate me an conversation topic is likely to show up in people's lives. that is 2 sentences long, that are designed to be graded for english texting fluency, make sure the conversation is engaging and interesting. make it sound as human as possible. {difficulty[prompt_diffculty]}"}
     ])
-    return response.choices[0].message.content.strip()
+    return jsonify({"status": "success", "content": response.choices[0].message.content.strip()})
 
 # TODO: check if there could be too many words, might cause crash
 @app.route('/ai_response', methods=['POST'])
@@ -106,9 +107,6 @@ def ai_response_prompt(previous_conversation, prompt, thread_id):
             {"role": "system", "content": "You are an competent but easy conversation program, you should behave like one, that is trying to have a normal conversation with the user, make sure you best mimic how a normal human would engage in the conversation."},
             {"role": "user", "content": f"The starting conversation topic is {prompt}. Here's the previous conversation that has been talked about so far: {prev_convo}. Generate me the a starting piece to this prompt like an online text conversation, try to come up with personalized example based on the prompt, include that in the first reponse, keep the responses between 1 to 2 sentences, only include what you say to the person in the response."}
     ])
-    # adding the message onto the database
-    new_message_id = db_functions.generate_new_message_id()
-    db_functions.send_message(new_message_id, 0, thread_id, response.choices[0].message.content.strip())
     return response.choices[0].message.content.strip()
 
 
@@ -151,7 +149,6 @@ def send_message():
     user_id = data.get('user_id')
     thread_id = data.get('thread_id')
     content = data.get('content')
-    print("NIGGA")
     print(user_id)
     print(thread_id)
     print(content)
