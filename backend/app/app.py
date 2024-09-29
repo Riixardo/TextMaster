@@ -68,6 +68,12 @@ def handle_leave_room(data):
     leave_room(room)
     emit('room_updated', {'message': f'User left {room}', 'room': room, 'user': user, 'players': players}, room=room)
 
+@socketio.on('start_room')
+def handle_leave_room(data):
+    room = data['room']
+    # TODO HANDLE BACKEND GAME INITIALIZATION
+    emit('room_started', {'message': f'Game {room} has started', 'room': room}, room=room)
+
 # --------------- OpenAI Functions ---------------
 
 @app.route('/generate_prompt', methods=['POST'])
@@ -330,14 +336,22 @@ def ge_lobbies():
 GameLeaderBoards = {}
 
 class GameInfo:
-    def get_leaderboard(self, match_id, player_list):
+    def get_scoreboard(self, match_id):
+        player_list = db_functions.view_lobby(match_id)
         if match_id not in GameLeaderBoards:
-            GameLeaderBoards[match_id] = []
-            for player in player_list:
+            GameLeaderBoards[match_id] = {}
+        
+        # Remove players who are not in player_list
+        for player in list(GameLeaderBoards[match_id].keys()):
+            if player not in player_list:
+                del GameLeaderBoards[match_id][player]
+        
+        # Add new players to the leaderboard with a score of 0
+        for player in player_list:
+            if player not in GameLeaderBoards[match_id]:
                 GameLeaderBoards[match_id][player] = 0
-            return GameLeaderBoards[match_id]
-        else:
-            return GameLeaderBoards[match_id]
+        
+        return self._helper(GameLeaderBoards[match_id])
         
     def update_score(self,match_id, new_scores):
         players = db_functions.view_lobby(match_id)

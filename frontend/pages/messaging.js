@@ -14,6 +14,8 @@ export default function Messaging() {
   const [leaderboard, setLeaderboard] = useState([]); // Initialize leaderboard state
   const [loadingLeaderboard, setLoadingLeaderboard] = useState(false);
   const [isLoading, setLoading] = useState(true);
+  // for progress bar
+  const [userScores, setUserScores] = useState(null);
 
   const getMessages = () => {
     return messages;
@@ -50,6 +52,20 @@ export default function Messaging() {
   };
 
 
+  // // this is for the progress bar
+  // const receive_user_scores = async (userId, matchId) => {
+  //   try {
+  //     const response = await axios.post('localhost:5000/api/send_user_score', { user_id: userId, match_id: matchId });
+  //     // flow, conciseness, clarity, relevance
+  //     return response.data;
+
+  //   } catch (error) {
+  //     console.error('Error receiving user score:', error);
+  //   }
+
+  // };
+
+
   // Function to handle receiving a message
   const receiveMessage = async (updatedMessages) => {
     try {
@@ -84,75 +100,53 @@ export default function Messaging() {
     }
   };
 
-
-
-  // useEffect(() => {
-  //   const mID = sessionStorage.getItem('matchId');
-  //   const uID = sessionStorage.getItem('user_id');
-    
-  //   setMatchId(mID || 'chinatown');
-  //   setUserId(uID || '');
-  // }, []);
-
-  // useEffect(() => {
-  //   const fetchLeaderboard = async () => {
-  //     if (matchId && userId) {
-  //       try {
-  //         const data = await get_leaderboard(matchId);
-  //         setLeaderboard(data);
-  //         console.log('leaderboard:', data);
-  //       } catch (error) {
-  //         console.error('Error fetching leaderboard:', error);
-  //       } finally {
-  //         setIsLoading(false);
-  //       }
-  //     }
-  //   };
-
-  //   fetchLeaderboard();
-  // }, [matchId, userId]);
   useEffect(() => {
-  const mID = sessionStorage.getItem('matchId');
-  const uID = sessionStorage.getItem('user_id');
-  if (mID) {
-    setMatchId(mID);
-  } else {
-    setMatchId('chinatown');
-  }
-
-  if (uID) {
-    setUserId(uID);
-  }
-}, []);
-
-useEffect(() => {
-  const fetchLeaderboard = async () => {
-    try {
-      const data = await get_leaderboard(matchId);
-      setLeaderboard(data);
-    } catch (error) {
-      console.error('Error fetching leaderboard:', error);
-    } finally {
-      setLoading(false);
+    if (router.isReady) {
+      const { mID } = router.query;
+      console.log(mID)
+      const uID = sessionStorage.getItem('user_id');
+      
+      setMatchId(mID || 'chinatown');
+      setUserId(uID || '');
     }
-  };
+  }, [router.isReady, router.query]);
 
-  if (matchId && userId) {
-    fetchLeaderboard(); // Initial fetch
-    const intervalId = setInterval(fetchLeaderboard, 1000); // Fetch every second
+  useEffect(() => {
+    const fetchLeaderboard = async () => {
+      try {
+        const data = await get_leaderboard(matchId);
+        setLeaderboard(data);
+      } catch (error) {
+        console.error('Error fetching leaderboard:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    return () => clearInterval(intervalId); // Cleanup interval on component unmount
-  }
-}, [matchId, userId]);
+    if (matchId && userId) {
+      fetchLeaderboard(); // Initial fetch
+      const intervalId = setInterval(fetchLeaderboard, 1000); // Fetch every second
+
+      return () => clearInterval(intervalId); // Cleanup interval on component unmount
+    }
+  }, [matchId, userId]);
+
+  useEffect(() => {
+    const sendUserScore = async () => {
+      
+      };
 
 
-// // Ensure matchId, userId, and leaderboard are set before rendering the main content
-// if (!matchId || !userId || leaderboard.length === 0) {
-//   return null; // Return null to render nothing while waiting for matchId, userId, and leaderboard
-// }
+    if (matchId && userId) {
+      const intervalId = setInterval(sendUserScore, 1000); // Send user score every 5 second
+
+      return () => clearInterval(intervalId); // Cleanup interval on component unmount
+    }
+  }, [matchId, userId]);
+
 
 // Ensure matchId, userId, and leaderboard are set before rendering the main content
-if (!matchId || !userId) {
+if (!matchId || !userId || !userScores) {
   return <div>`Loading`...</div>; // Render a loading indicator while waiting for matchId, userId, and leaderboard
 }
 
@@ -164,7 +158,7 @@ if (!matchId || !userId) {
         {loadingLeaderboard ? (
           <p>Loading leaderboard...</p>
         ) : (
-          <Scoreboard user_id={userId} leaderboard={leaderboard} />
+          <Scoreboard user_id={userId} leaderboard={leaderboard} userScores={userScores}/>
         )}
         <div className="flex-grow h-screen p-6 flex flex-col" style={{ background: '#ffffff' }}>
           <h2 className="text-blue-500 text-2xl font-bold mb-4">Textmaster Messaging</h2>

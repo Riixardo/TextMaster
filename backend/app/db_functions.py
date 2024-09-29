@@ -277,7 +277,7 @@ def create_lobby(room, creator_id, game_mode, difficulty, max_players):
             VALUES (%s, %s);
         """
 
-        cursor.execute(sql_commands1, [room, creator_id, max_players, 0, difficulty, game_mode])
+        cursor.execute(sql_commands1, [room, creator_id, max_players, 1, difficulty, game_mode])
         cursor.execute(sql_commands2, [room, creator_id])
         conn.commit()
 
