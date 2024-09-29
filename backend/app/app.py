@@ -141,6 +141,22 @@ def grade_user_responses(previous_conversation, prompt):
 
 # --------------- Database Functions ---------------
 
+@app.route('/create_user_stats', methods=['POST'])
+def handle_create_user_stats(user_id, games_played, time_played, games_won, games_lost, global_ranking, gems, coins):
+    try:
+        db_functions.create_user_stats(user_id, games_played, time_played, games_won, games_lost, global_ranking, gems, coins)
+        return jsonify({"message": "Created user stats successfully"}), 201
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+@app.route('/create_user_leaderboard', methods=['POST'])
+def handle_create_user_leaderboard(user_id, elo):
+    try:
+        db_functions.create_user_leaderboard(user_id, elo)
+        return jsonify({"message": "Created user stats successfully"}), 201
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 @app.route('/get_global_rank', methods=['POST'])
 def handle_get_global_rank(user_id):
     try:
