@@ -300,6 +300,7 @@ def join_lobby(room, user_id):
 
         sql_commands1 = "SELECT * FROM lobby WHERE lobby_id = %s;"
         sql_commands2 = "INSERT INTO lobby_players VALUES (%s, %s);"
+        sql_commands3 = "UPDATE lobby SET num_players = num_players + 1 WHERE lobby_id = %s;"
 
         cursor = conn.cursor(cursor_factory=DictCursor)
         cursor.execute(sql_commands1, [room])
@@ -307,6 +308,7 @@ def join_lobby(room, user_id):
 
         print(result)
         if result["num_players"] == result["max_players"]:
+            cursor.execute(sql_commands3, [room])
             cursor.close()
             conn.close()
             return -1
@@ -323,13 +325,22 @@ def leave_lobby(room, user_id):
     try:
         conn = psycopg2.connect(db_url)
 
-        sql_commands1 = "DELETE FROM lobby_players WHERE lobby_id = %s AND user_id = %s;"
+        sql_commands1 = "DELETE FROM lobby_players WHERE lobby_id = %s AND user_id = %s RETURNING *;"
         sql_commands2 = "SELECT * FROM lobby WHERE lobby_id = %s;"
         sql_commands3 = "DELETE FROM lobby_players WHERE lobby_id = %s;"
         sql_commands4 = "DELETE FROM lobby WHERE lobby_id = %s;"
+        sql_commands5 = "UPDATE lobby SET num_players = num_players - 1 WHERE lobby_id = %s;"
+
 
         cursor = conn.cursor(cursor_factory=DictCursor)
         cursor.execute(sql_commands1, [room, user_id])
+
+        deleted = cursor.fetchone()
+
+        if deleted == None:
+            return
+        
+        cursor.execute(sql_commands5, [room])
         conn.commit()
         cursor.execute(sql_commands2, [room])
         result = cursor.fetchone()
@@ -367,6 +378,30 @@ def view_lobby(room):
         cursor.close()
         conn.close()
         return players
+
+    except psycopg2.Error as e:
+        print(f"Error: {e}")
+
+def get_lobbies():
+    try:
+        conn = psycopg2.connect(db_url)
+
+        sql_commands1 = """
+        SELECT a.lobby_id, a.max_players, a.num_players, a.difficulty, a.game_mode, b.username
+        FROM lobby AS a 
+        JOIN users AS b ON a.creator_id = b.user_id
+        """
+
+        cursor = conn.cursor()
+        cursor.execute(sql_commands1)
+        results = cursor.fetchall()
+        lobbies = []
+        for row in results:
+            lobbies.append(row)
+
+        cursor.close()
+        conn.close()
+        return lobbies
 
     except psycopg2.Error as e:
         print(f"Error: {e}")
