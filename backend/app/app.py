@@ -141,35 +141,59 @@ def grade_user_responses(previous_conversation, prompt):
 
 # --------------- Database Functions ---------------
 
-@app.route('/create_lobby', methods=['POST'])
-def handle_create_lobby(room, creator_id, game_mode, difficulty, max_players):
+@app.route('/get_global_rank', methods=['POST'])
+def handle_get_global_rank(user_id):
     try:
-        db_functions.create_lobby(room, creator_id, game_mode, difficulty, max_players)
-        return jsonify({"message": "Lobby created successfully"}), 201
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-    
-@app.route('/join_lobby', methods=['POST'])
-def handle_join_lobby(room, user_id):
-    try:
-        db_functions.join_lobby(room, user_id)
-        return jsonify({"message": "Joined lobby successfully"}), 201
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-    
-@app.route('/leave_lobby', methods=['POST'])
-def handle_leave_lobby(room, user_id):
-    try:
-        db_functions.leave_lobby(room, user_id)
-        return jsonify({"message": "Left lobby successfully"}), 201
+        db_functions.get_global_rank(user_id)
+        return jsonify({"message": "Got global rank successfully"}), 201
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route('/view_lobby', methods=['POST'])
-def handle_view_lobby(room):
+@app.route('/insert_mission', methods=['POST'])
+def handle_insert_mission():
     try:
-        db_functions.view_lobby(room)
-        return jsonify({"message": "Viewed lobby successfully"}), 201
+        db_functions.insert_mission()
+        return jsonify({"message": "Inserted mission successfully"}), 201
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+@app.route('/reset_daily_missions', methods=['POST'])
+def handle_reset_daily_missions():
+    try:
+        db_functions.reset_daily_missions()
+        return jsonify({"message": "Reseted daily missions successfully"}), 201
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+@app.route('/reset_user_daily_completion', methods=['POST'])
+def handle_reset_user_daily_completion():
+    try:
+        db_functions.reset_user_daily_completion()
+        return jsonify({"message": "Reseted user daily completion successfully"}), 201
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+@app.route('/create_thread', methods=['POST'])
+def handle_create_thread(thread_id, thread_name):
+    try:
+        db_functions.create_thread(thread_id, thread_name)
+        return jsonify({"message": "Created thread successfully"}), 201
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+@app.route('/send_message', methods=['POST'])
+def handle_send_message(message_id, user_id, thread_id, content):
+    try:
+        db_functions.send_message(message_id, user_id, thread_id, content)
+        return jsonify({"message": "Sent message successfully"}), 201
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+@app.route('/retrieve_messages', methods=['POST'])
+def handle_retrieve_messages(thread_id):
+    try:
+        db_functions.retrieve_messages(thread_id)
+        return jsonify({"message": "Retrieved messages successfully"}), 201
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
