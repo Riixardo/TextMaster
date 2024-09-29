@@ -3,14 +3,6 @@ import ProgressBar from "./progress_bar";
 
 export default function Scoreboard({ user_id, leaderboard }) {
 
-  // const players = [
-  //   ["FrankIsDank", 20],
-  //   ["Egg", 15],
-  //   ["Rob", 10],
-  //   ["Wres123", 5],
-  //   ["Joe Biden", 1]
-  // ];
-
   console.log("scoreboard:", leaderboard);
 
   

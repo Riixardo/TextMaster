@@ -13,7 +13,7 @@ export default function Messaging() {
   const [matchId, setMatchId] = useState(null); // Initialize match_id state
   const [leaderboard, setLeaderboard] = useState([]); // Initialize leaderboard state
   const [loadingLeaderboard, setLoadingLeaderboard] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setLoading] = useState(true);
 
   const getMessages = () => {
     return messages;
@@ -40,7 +40,7 @@ export default function Messaging() {
         content: inputValue
       });
 
-      console.log('AI response received:', response.data);
+      console.log('the message id is: ', response.message_id);
 
       // Pass the updated messages to receiveMessage
       await receiveMessage(updatedMessages);
@@ -58,8 +58,6 @@ export default function Messaging() {
         prompt: "any prompt is fine",
         thread_id: 1020
       });
-      
-      console.log(updatedMessages);
 
       // Update the state with the new AI message
       setMessages(prevMessages => [...prevMessages, { text: response.data.content, sender: 'AI' }]);
@@ -99,21 +97,23 @@ export default function Messaging() {
 
   useEffect(() => {
     const fetchLeaderboard = async () => {
-      if (matchId && userId) {
-        try {
-          const data = await get_leaderboard(matchId);
-          setLeaderboard(data);
-          console.log('leaderboard:', data);
-        } catch (error) {
-          console.error('Error fetching leaderboard:', error);
-        } finally {
-          setIsLoading(false);
-        }
+      try {
+        const data = await get_leaderboard(matchId);
+        setLeaderboard(data);
+      } catch (error) {
+        console.error('Error fetching leaderboard:', error);
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchLeaderboard();
-  }, [matchId, userId]);
+  if (matchId && userId) {
+    fetchLeaderboard(); // Initial fetch
+    const intervalId = setInterval(fetchLeaderboard, 1000); // Fetch every second
+
+    return () => clearInterval(intervalId); // Cleanup interval on component unmount
+  }
+}, [matchId, userId]);
 
 
 // // Ensure matchId, userId, and leaderboard are set before rendering the main content
@@ -122,7 +122,7 @@ export default function Messaging() {
 // }
 
 // Ensure matchId, userId, and leaderboard are set before rendering the main content
-if (!matchId || !userId || leaderboard.length === 0) {
+if (!matchId || !userId) {
   return <div>`Loading`...</div>; // Render a loading indicator while waiting for matchId, userId, and leaderboard
 }
 
