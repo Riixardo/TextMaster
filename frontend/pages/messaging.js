@@ -84,58 +84,28 @@ export default function Messaging() {
     }
   };
 
-
-
-  // useEffect(() => {
-  //   const mID = sessionStorage.getItem('matchId');
-  //   const uID = sessionStorage.getItem('user_id');
-    
-  //   setMatchId(mID || 'chinatown');
-  //   setUserId(uID || '');
-  // }, []);
-
-  // useEffect(() => {
-  //   const fetchLeaderboard = async () => {
-  //     if (matchId && userId) {
-  //       try {
-  //         const data = await get_leaderboard(matchId);
-  //         setLeaderboard(data);
-  //         console.log('leaderboard:', data);
-  //       } catch (error) {
-  //         console.error('Error fetching leaderboard:', error);
-  //       } finally {
-  //         setIsLoading(false);
-  //       }
-  //     }
-  //   };
-
-  //   fetchLeaderboard();
-  // }, [matchId, userId]);
   useEffect(() => {
-  const mID = sessionStorage.getItem('matchId');
-  const uID = sessionStorage.getItem('user_id');
-  if (mID) {
-    setMatchId(mID);
-  } else {
-    setMatchId('chinatown');
-  }
-
-  if (uID) {
-    setUserId(uID);
-  }
-}, []);
-
-useEffect(() => {
-  const fetchLeaderboard = async () => {
-    try {
-      const data = await get_leaderboard(matchId);
-      setLeaderboard(data);
-    } catch (error) {
-      console.error('Error fetching leaderboard:', error);
-    } finally {
-      setLoading(false);
+    if (router.isReady) {
+      const { mID } = router.query;
+      console.log(mID)
+      const uID = sessionStorage.getItem('user_id');
+      
+      setMatchId(mID || 'chinatown');
+      setUserId(uID || '');
     }
-  };
+  }, [router.isReady, router.query]);
+
+  useEffect(() => {
+    const fetchLeaderboard = async () => {
+      try {
+        const data = await get_leaderboard(matchId);
+        setLeaderboard(data);
+      } catch (error) {
+        console.error('Error fetching leaderboard:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
   if (matchId && userId) {
     fetchLeaderboard(); // Initial fetch
