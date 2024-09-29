@@ -4,12 +4,13 @@ from flask_cors import CORS
 import hashlib
 import db_functions
 from openai import OpenAI
+import os
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 import os
 from dotenv import load_dotenv
 
-from app.openai_api import generate_prompt
+from openai_api import generate_prompt, ai_response_prompt
 
 app = Flask(__name__)
 CORS(app)  
