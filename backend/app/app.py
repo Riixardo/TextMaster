@@ -157,6 +157,77 @@ def login():
     password = data.get('password')
     return jsonify(db_functions.login_user(username, password))
 
+@app.route('/create_user_stats', methods=['POST'])
+def handle_create_user_stats(user_id, games_played, time_played, games_won, games_lost, global_ranking, gems, coins):
+    try:
+        db_functions.create_user_stats(user_id, games_played, time_played, games_won, games_lost, global_ranking, gems, coins)
+        return jsonify({"message": "Created user stats successfully"}), 201
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+@app.route('/create_user_leaderboard', methods=['POST'])
+def handle_create_user_leaderboard(user_id, elo):
+    try:
+        db_functions.create_user_leaderboard(user_id, elo)
+        return jsonify({"message": "Created user stats successfully"}), 201
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/get_global_rank', methods=['POST'])
+def handle_get_global_rank(user_id):
+    try:
+        db_functions.get_global_rank(user_id)
+        return jsonify({"message": "Got global rank successfully"}), 201
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/insert_mission', methods=['POST'])
+def handle_insert_mission():
+    try:
+        db_functions.insert_mission()
+        return jsonify({"message": "Inserted mission successfully"}), 201
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+@app.route('/reset_daily_missions', methods=['POST'])
+def handle_reset_daily_missions():
+    try:
+        db_functions.reset_daily_missions()
+        return jsonify({"message": "Reseted daily missions successfully"}), 201
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+@app.route('/reset_user_daily_completion', methods=['POST'])
+def handle_reset_user_daily_completion():
+    try:
+        db_functions.reset_user_daily_completion()
+        return jsonify({"message": "Reseted user daily completion successfully"}), 201
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+@app.route('/create_thread', methods=['POST'])
+def handle_create_thread(thread_id, thread_name):
+    try:
+        db_functions.create_thread(thread_id, thread_name)
+        return jsonify({"message": "Created thread successfully"}), 201
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+@app.route('/send_message', methods=['POST'])
+def handle_send_message(message_id, user_id, thread_id, content):
+    try:
+        db_functions.send_message(message_id, user_id, thread_id, content)
+        return jsonify({"message": "Sent message successfully"}), 201
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+@app.route('/retrieve_messages', methods=['POST'])
+def handle_retrieve_messages(thread_id):
+    try:
+        db_functions.retrieve_messages(thread_id)
+        return jsonify({"message": "Retrieved messages successfully"}), 201
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
    socketio.run(app, port=5000, debug=True)
