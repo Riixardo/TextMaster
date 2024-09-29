@@ -487,6 +487,24 @@ def get_lobbies():
 
 # =================== threads and messaging stuff ====================================================================
 
+def generate_new_thread_id():
+    try:
+        conn = psycopg2.connect(db_url)
+        cursor = conn.cursor()
+
+        sql_command = "SELECT COALESCE(MAX(thread_id), 0) + 1 FROM thread;"
+        cursor.execute(sql_command)
+        new_thread_id = cursor.fetchone()[0]
+
+        cursor.close()
+        conn.close()
+
+        return new_thread_id
+
+    except psycopg2.Error as e:
+        print(f"Error: {e}")
+        return None
+
 # untested
 def create_thread(thread_id, thread_name):
     try:

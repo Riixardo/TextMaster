@@ -307,7 +307,7 @@ def update_score():
     game_info.update_score(match_id, new_scores)
     return jsonify({'message': 'Score updated'})
 
-@app.route('/api/get_leaderboard', methods=['POST'])
+@app.route('/api/get_scoreboard', methods=['POST'])
 def get_leaderboard():
     data = request.json
     match_id = data.get('id')
@@ -335,6 +335,21 @@ def end_game():
 @app.route('/api/get_lobbies', methods=['GET'])
 def ge_lobbies():
     return jsonify({"lobbies": db_functions.get_lobbies()})
+
+
+# --------------- Thread Functions ---------------
+
+@app.route('/create_thread', methods=['POST'])
+def create_thread():
+    try:
+        data = request.json
+        thread_name = data.get('thread_name')
+        thread_id = db_functions.generate_new_thread_id()
+        db_functions.create_thread(thread_id, thread_name)
+        return jsonify({'message': 'Thread created', 'thread_id': thread_id})    
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+  
 
 GameLeaderBoards = {}
 

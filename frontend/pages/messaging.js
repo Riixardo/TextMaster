@@ -84,8 +84,8 @@ export default function Messaging() {
 
   const get_leaderboard = async (matchId) => {
     try {
-      const response = await axios.post(`http://127.0.0.1:5000/api/get_leaderboard`, {
-        id: matchId,
+      const response = await axios.post(`http://127.0.0.1:5000/api/get_scoreboard`, {
+        id: matchId
       });
 
       return response.data;
@@ -103,7 +103,7 @@ export default function Messaging() {
   useEffect(() => {
     if (router.isReady) {
       const { mID } = router.query;
-      console.log(mID)
+      console.log(mID);
       const uID = sessionStorage.getItem('user_id');
       
       setMatchId(mID || 'chinatown');
@@ -146,7 +146,7 @@ export default function Messaging() {
 
 
 // Ensure matchId, userId, and leaderboard are set before rendering the main content
-if (!matchId || !userId || !userScores) {
+if (!matchId || !userId) {
   return <div>`Loading`...</div>; // Render a loading indicator while waiting for matchId, userId, and leaderboard
 }
 

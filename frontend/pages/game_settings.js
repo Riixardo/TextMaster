@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from "react";
 import React from "react";
 import Sidebar from "@/components/side_bar";
 import { useRouter } from "next/router";
+import axios from 'axios';
+
 
 const gameSettings = () => {
 
@@ -25,8 +27,16 @@ const gameSettings = () => {
 
     const router = useRouter();
 
-    const handleMessagingClick = () => {
-        router.push('/messaging');
+    const handleStartButton = async () => {
+        const response = await axios.post('http://127.0.0.1:5000/create_thread', {
+            thread_name: "test_thread",
+        });
+        threadId = response['thread_id'];
+
+        router.push({
+            pathname: '/single_player',
+            query: { thread_id: threadId }
+        });
     }
 
     return (
@@ -91,7 +101,7 @@ const gameSettings = () => {
                     </div>    
                 </div>
                 <div style={{textAlign:'right', width:'1000px'}}>
-                    <button onClick={handleMessagingClick}> start game </button>
+                    <button onClick={handleStartButton}> start game </button>
                 </div>
             </div>
         </div>
