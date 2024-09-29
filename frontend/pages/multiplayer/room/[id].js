@@ -18,6 +18,7 @@ const Room = ({ players = [], leaveRoom, startRoom }) => {
   const [buttonWidth, setButtonWidth] = useState('auto');
    
   useEffect(() => {
+    console.log(players.length)
       if (headingRef.current) {
           setButtonWidth(headingRef.current.offsetWidth);
       }
@@ -30,28 +31,22 @@ const Room = ({ players = [], leaveRoom, startRoom }) => {
   return (
     <div className="min-h-screen w-screen" style={{ display: 'flex' }}>
         <Sidebar selectedButton={selectedButton} handleButtonClick={handleButtonClick} buttonWidth={buttonWidth} />
-        <div style={{backgroundColor: '#FFFFFF', flex:1, padding: '33px', textAlign:'center'}}>
+        <div style={{backgroundColor: '#FFFFFF', flex:1, textAlign:'center'}} className="px-[10vw]">
             <h1 className="text-4xl mt-5" style = {{color: '#4a4aff'}}>Multiplayer Room</h1>
-            <div style={{overflowY: 'scroll', height:"400px"}}>
-                <div style={{display: 'flex', flexDirection: 'row', paddingTop:'40px', gap:'100px'}}>
-                    <div style={{paddingRight:'20px'}}>
-                        <div style={styles.gridContainer}>
-                            {players.length > 0 && players.map((user, index) => (
-                            <ProfileCard
-                                key={index}
-                                username={user}
-                                profilePic={"https://via.placeholder.com/40"}
-                            />
-                            ))} 
-                        </div>
-                        <button onClick={() => {
-                          leaveRoom(id, username, user_id);
-                          router.push("/multiplayer/rooms");
-                        }}>LEAVE ROOM</button>
-                        <button onClick={() => startRoom(id)}>START GAME</button>
-                    </div>
-                </div>    
-            </div>     
+            <div style={styles.gridContainer} className="h-[80%]">
+                {players.length > 0 && players.map((user, index) => (
+                <ProfileCard
+                    key={index}
+                    username={user}
+                    profilePic={"https://via.placeholder.com/40"}
+                />
+                ))} 
+            </div>
+            <button onClick={() => {
+              leaveRoom(id, username, user_id);
+              router.push("/multiplayer/rooms");
+            }}>LEAVE ROOM</button>
+            <button onClick={() => startRoom(id)}>START GAME</button>
         </div>    
     </div>
 );
