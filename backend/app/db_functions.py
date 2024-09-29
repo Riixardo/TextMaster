@@ -57,29 +57,6 @@ def create_user_leaderboard(user_id, elo):
         print(f"Error: {e}")
 
 # untested
-def get_user_stats(user_id):
-    try:
-        conn = psycopg2.connect(db_url)
-        cursor = conn.cursor(cursor_factory=DictCursor)
-
-        sql_command = """
-        SELECT * FROM user_stats WHERE user_id = %s;
-        """
-
-        cursor.execute(sql_command, [user_id])
-
-        result = cursor.fetchone()
-
-        cursor.close()
-        conn.close()
-
-        # hard coded elo for now until Sam finishes his function
-        return {"status": 0, "stats": result, "elo": 100}
-
-    except psycopg2.Error as e:
-        print(f"Error: {e}")
-
-# untested
 def get_elo(user_id):
     try:
         conn = psycopg2.connect(db_url)
@@ -103,6 +80,29 @@ def get_elo(user_id):
     except psycopg2.Error as e:
         print(f"Error: {e}")
         return None
+    
+# untested
+def get_user_stats(user_id):
+    try:
+        conn = psycopg2.connect(db_url)
+        cursor = conn.cursor(cursor_factory=DictCursor)
+
+        sql_command = """
+        SELECT * FROM user_stats WHERE user_id = %s;
+        """
+
+        cursor.execute(sql_command, [user_id])
+
+        result = cursor.fetchone()
+
+        cursor.close()
+        conn.close()
+
+        # hard coded elo for now until Sam finishes his function
+        return {"status": 0, "stats": result, "elo": get_elo(user_id)}
+
+    except psycopg2.Error as e:
+        print(f"Error: {e}")
 
 # untested
 def get_global_rank(user_id):
