@@ -308,11 +308,11 @@ def join_lobby(room, user_id):
 
         print(result)
         if result["num_players"] == result["max_players"]:
-            cursor.execute(sql_commands3, [room])
             cursor.close()
             conn.close()
             return -1
 
+        cursor.execute(sql_commands3, [room])
         cursor.execute(sql_commands2, [room, user_id])
         conn.commit()
         cursor.close()
