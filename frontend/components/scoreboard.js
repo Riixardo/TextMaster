@@ -19,7 +19,7 @@ export default function Scoreboard({ user_id, leaderboard, userScores }) {
       <div>
         <h2 className="text-gray-700 text-2xl font-extrabold" style={{ color: '#535353' }}>Scoreboard</h2>
         <ul className="mt-4 font-bold">
-          {leaderboard.map((player, index) => (
+          {Array.isArray(leaderboard) && leaderboard.map((player, index) => (
             <li 
               key={index}
               className={`p-2 mb-2 shadow-md rounded-lg`}
