@@ -86,15 +86,16 @@ export default function Messaging() {
     }
   };
 
-
-
   useEffect(() => {
-    const mID = sessionStorage.getItem('matchId');
-    const uID = sessionStorage.getItem('user_id');
-    
-    setMatchId(mID || 'chinatown');
-    setUserId(uID || '');
-  }, []);
+    if (router.isReady) {
+      const { mID } = router.query;
+      console.log(mID)
+      const uID = sessionStorage.getItem('user_id');
+      
+      setMatchId(mID || 'chinatown');
+      setUserId(uID || '');
+    }
+  }, [router.isReady, router.query]);
 
   useEffect(() => {
     const fetchLeaderboard = async () => {

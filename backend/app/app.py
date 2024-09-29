@@ -69,6 +69,12 @@ def handle_leave_room(data):
     leave_room(room)
     emit('room_updated', {'message': f'User left {room}', 'room': room, 'user': user, 'players': players}, room=room)
 
+@socketio.on('start_room')
+def handle_leave_room(data):
+    room = data['room']
+    # TODO HANDLE BACKEND GAME INITIALIZATION
+    emit('room_started', {'message': f'Game {room} has started', 'room': room}, room=room)
+
 # --------------- OpenAI Functions ---------------
 
 @app.route('/generate_prompt', methods=['POST'])

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { useRouter} from 'next/router';
 
 // this is a room 
-const Room = ({ players = [], leaveRoom}) => {
+const Room = ({ players = [], leaveRoom, startRoom }) => {
 
   const router = useRouter();
   const { id } = router.query;
@@ -13,12 +13,16 @@ const Room = ({ players = [], leaveRoom}) => {
 
   return (
     <div>
-      <h1>Dynamic ID: {id}</h1>
+      <h1>Game ID: {id}</h1>
+      <div>
+        Players in Game:
+      </div>
       {players.length > 0 && players.map((player) => (<div className="text-white">{player}</div>))}
       <button onClick={() => {
         leaveRoom(id, username, user_id);
         router.push("/multiplayer/rooms");
         }}>LEAVE ROOM</button>
+        <button onClick={() => startRoom(id)}> START GAME </button>
     </div>
   );
 };
