@@ -49,11 +49,13 @@ def handle_create_room(data):
 def handle_join_room(data):
     room = data['room']
     user = data['user']
-    db_functions.join_lobby(room, data['user_id'])
+    if db_functions.join_lobby(room, data['user_id']) == -1:
+        emit('room_joined', {'message': f'Room {room} is full', 'room': room, 'user': user, 'players': players, 'status': -1}, room=request.sid)
+        return
     players = db_functions.view_lobby(room)
     join_room(room)
     print(f'User {user} joined room {room}.')
-    emit('room_joined', {'message': f'User joined {room}', 'room': room, 'user': user, 'players': players}, room=request.sid)
+    emit('room_joined', {'message': f'User joined {room}', 'room': room, 'user': user, 'players': players, 'status': 0}, room=request.sid)
     emit('room_updated', {'message': f'User joined {room}', 'room': room, 'user': user, 'players': players}, room=room)
 
 @socketio.on('leave_room')
@@ -183,7 +185,8 @@ def signup():
     username = data.get('username')
     email = data.get('email')
     password = data.get('password')
-    return jsonify(db_functions.create_user(username, email, password))
+    randomStringId = username + "lovestext"
+    return jsonify(db_functions.create_user(randomStringId, username, email, password))
 
 @app.route('/login', methods=['POST'])
 def login():
@@ -300,6 +303,7 @@ def update_score():
 def get_leaderboard():
     data = request.json
     match_id = data.get('id')
+    print("APWDKPAKDPAWOD")
     print(match_id)
     if not match_id:
         return jsonify({'error': 'match_id is required'}), 400
@@ -308,6 +312,7 @@ def get_leaderboard():
         game_info = GameInfo()
         res = game_info.get_leaderboard(match_id)
         print('Leaderboard data:', res)
+
         return jsonify(res)
     except Exception as e:
         return jsonify({'error': str(e)}), 500
