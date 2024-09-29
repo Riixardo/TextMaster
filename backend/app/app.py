@@ -2,12 +2,11 @@ from flask import Flask, request, jsonify
 from flask_socketio import SocketIO, join_room, emit, leave_room
 from flask_cors import CORS
 import hashlib
-import backend.app.db_functions as db_functions
+import db_functions as db_functions
 from openai import OpenAI
 import os
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-import os
 from dotenv import load_dotenv
 
 
@@ -34,6 +33,8 @@ def hash_string(string):
     # Convert the hash to a hexadecimal string
     hash_hex = hash_object.hexdigest()
     return hash_hex
+
+# --------------- Sockets ---------------
 
 @socketio.on('create_room')
 def handle_create_room(data):
@@ -139,39 +140,23 @@ def grade_user_responses(previous_conversation, prompt):
     
     return grades
 
-# --------------- Database Functions ---------------
+# --------------- SignUp / Login Functions ---------------
 
-@app.route('/create_lobby', methods=['POST'])
-def handle_create_lobby(room, creator_id, game_mode, difficulty, max_players):
-    try:
-        db_functions.create_lobby(room, creator_id, game_mode, difficulty, max_players)
-        return jsonify({"message": "Lobby created successfully"}), 201
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-    
-@app.route('/join_lobby', methods=['POST'])
-def handle_join_lobby(room, user_id):
-    try:
-        db_functions.join_lobby(room, user_id)
-        return jsonify({"message": "Joined lobby successfully"}), 201
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-    
-@app.route('/leave_lobby', methods=['POST'])
-def handle_leave_lobby(room, user_id):
-    try:
-        db_functions.leave_lobby(room, user_id)
-        return jsonify({"message": "Left lobby successfully"}), 201
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+@app.route('/signup', methods=['POST'])
+def signup():
+    data = request.json
+    username = data.get('username')
+    email = data.get('email')
+    password = data.get('password')
+    return jsonify(db_functions.create_user(username, email, password))
 
-@app.route('/view_lobby', methods=['POST'])
-def handle_view_lobby(room):
-    try:
-        db_functions.view_lobby(room)
-        return jsonify({"message": "Viewed lobby successfully"}), 201
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.json
+    username = data.get('username')
+    password = data.get('password')
+    return jsonify(db_functions.login_user(username, password))
+
 
 if __name__ == '__main__':
    socketio.run(app, port=5000, debug=True)
