@@ -4,7 +4,7 @@ from psycopg2.extras import DictCursor
 import os
 from dotenv import load_dotenv
 from datetime import datetime
-from db_functions import (
+from backend.app.db_functions import (
     create_user, create_user_stats, create_user_leaderboard, get_global_rank,
     insert_mission, reset_daily_missions, reset_user_daily_completion,
     create_lobby, join_lobby, leave_lobby, view_lobby,

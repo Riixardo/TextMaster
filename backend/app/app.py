@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify
 from flask_socketio import SocketIO, join_room, emit, leave_room
 from flask_cors import CORS
 import hashlib
-import backend.database.db_functions as db_functions
+import backend.app.db_functions as db_functions
 from openai import OpenAI
 import os
 
