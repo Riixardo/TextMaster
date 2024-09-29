@@ -3,13 +3,16 @@ import React from "react";
 import Sidebar from "@/components/side_bar";
 import Image from 'next/image'; // assuming Next.js for image optimization
 import ProgressBar from "@/components/progress_bar";
+import axios from "axios";
 
 const Home = () => {
     const [selectedButton, setSelectedButton] = useState(null);
+    const [username, setUsername] = useState(null);
     const headingRef = useRef(null);
     const [buttonWidth, setButtonWidth] = useState('auto');
 
     useEffect(() => {
+        setUsername(sessionStorage.getItem("username"));
         if (headingRef.current) {
             setButtonWidth(headingRef.current.offsetWidth);
         }
@@ -28,9 +31,9 @@ const Home = () => {
                 
                 {/* New Header Section */}
                 <div className="w-full flex flex-col items-center mb-6" style={{ backgroundColor: '#f0f0f0', padding: '1rem', margin: '0' }}>
-                    <h2 className="font-bold text-2xl mb-2" style={{ color: 'black' }}>
-                        {sessionStorage.getItem("username")} <span className="text-sm">Level 32</span>
-                    </h2>
+                    {username && <h2 className="font-bold text-2xl mb-2" style={{ color: 'black' }}>
+                        {username} <span className="text-sm">Level 32</span>
+                    </h2>}
                     <div className="flex space-x-8 mt-2" style={{ color: 'black' }}>
                         <p>win rate: 56%</p>
                         <p>global position: #1032</p>

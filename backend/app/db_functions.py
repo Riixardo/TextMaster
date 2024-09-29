@@ -14,30 +14,6 @@ daily_missions = [(1, 'games', 3), (2, 'combo', 10), (3, 'win', 1)]
 
 # =================== user stats stuff ====================================================================
 
-# untested
-def create_user(user_id, username, email, password, profile_pic):
-    try:
-        conn = psycopg2.connect(db_url)
-        cursor = conn.cursor()
-
-        sql_command = """
-        INSERT INTO users (user_id, username, email, password, profile_pic)
-        VALUES (%s, %s, %s, %s, %s);
-        INSERT INTO users (user_id, username, email, password, profile_pic)
-        VALUES (%s, %s, %s, %s, %s);
-        """
-
-        cursor.execute(sql_command, [user_id, username, email, password, profile_pic])
-
-        conn.commit()  # Commit the transaction
-        cursor.close()
-        conn.close()
-        return {"status": -1}
-
-    except psycopg2.Error as e:
-        print(f"Error: {e}")
-        return {"status": -1}
-
 #untested
 def create_user_stats(user_id, games_played, time_played, games_won, games_lost, global_ranking, gems, coins):
     try:
@@ -80,6 +56,29 @@ def create_user_leaderboard(user_id, elo):
     except psycopg2.Error as e:
         print(f"Error: {e}")
 
+# # untested
+# def get_user_stats(user_id):
+#     try:
+#         conn = psycopg2.connect(db_url)
+#         cursor = conn.cursor(cursor_factory=DictCursor)
+
+#         sql_command = """
+#         SELECT * FROM user_stats WHERE user_id = %s;
+#         """
+
+#         cursor.execute(sql_command, [user_id])
+
+#         result = cursor.fetchone()
+        
+
+#         cursor.close()
+#         conn.close()
+
+#         print(f"User {user_id} with ELO {elo} added to the leaderboard.")
+
+#     except psycopg2.Error as e:
+#         print(f"Error: {e}")
+
 # untested
 def get_global_rank(user_id):
     try:
@@ -108,6 +107,56 @@ def get_global_rank(user_id):
     except psycopg2.Error as e:
         print(f"Error: {e}")
         return None
+    
+# untested
+def create_user(username, email, password):
+    randomStringId = username + "lovesslaves"
+    try:
+        conn = psycopg2.connect(db_url)
+        cursor = conn.cursor()
+
+        sql_command = """
+        INSERT INTO users (user_id, username, email, password, profile_pic)
+        VALUES (%s, %s, %s, %s, %s);
+        """
+
+        cursor.execute(sql_command, [randomStringId, username, email, password, "LOL"])
+        conn.commit()
+        cursor.close()
+        conn.close()
+        create_user_leaderboard(randomStringId, 100)
+        create_user_stats(randomStringId, 0, 0, 0, 0, get_global_rank(randomStringId), 0, 0)
+        return {"status": 0, "user_id": randomStringId, "username": username}
+
+    except psycopg2.Error as e:
+        print(f"Error: {e}")
+        return {"status": -1}
+    
+#untested
+def login_user(username, password):
+    try:
+        conn = psycopg2.connect(db_url)
+        cursor = conn.cursor()
+
+        sql_command = """
+        SELECT * FROM users WHERE username = %s AND password = %s;
+        """
+
+        cursor.execute(sql_command, [username, password])
+        result = cursor.fetchone()
+
+        if result != None:
+            cursor.close()
+            conn.close()
+            return {"status": 0, "user_id": result[0], "username": result[1]}
+
+        cursor.close()
+        conn.close()
+        return {"status": -1}
+
+    except psycopg2.Error as e:
+        print(f"Error: {e}")
+        return {"status": -1}
 
 # =================== daily mission stuff ====================================================================
 
