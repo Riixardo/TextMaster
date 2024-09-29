@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify
 from flask_socketio import SocketIO, join_room, emit, leave_room
 from flask_cors import CORS
 import hashlib
-import db_functions
+import db_functions as db_functions
 from openai import OpenAI
 import os
 
@@ -242,44 +242,67 @@ def create_game():
 def update_score():
     data = request.json
     match_id = data['match_id']
-    players = data['players']
     new_scores = data['new_scores']
     game_info = GameInfo()
-    game_info.update_score(match_id, players, new_scores)
+    game_info.update_score(match_id, new_scores)
     return jsonify({'message': 'Score updated'})
 
-@app.route('/api/get_leaderboard', methods=['GET'])
+@app.route('/api/get_leaderboard', methods=['POST'])
 def get_leaderboard():
-    match_id = request.args.get('match_id')
-    if match_id in GameLeaderBoards:
-        return jsonify({'leaderboard': GameLeaderBoards[match_id]})
-    else:
-        return jsonify({'message': 'Match ID not found'}), 404
+    data = request.json
+    match_id = data.get('id')
+    print(match_id)
+    if not match_id:
+        return jsonify({'error': 'match_id is required'}), 400
+
+    try:
+        game_info = GameInfo()
+        res = game_info.get_leaderboard(match_id)
+        print('Leaderboard data:', res)
+        return jsonify(res)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/end_game', methods=['POST'])
+def end_game():
+    match_id = request.json['match_id']
+    game_info = GameInfo()
+    game_info.end_game(match_id)
+    return jsonify({'message': 'Game ended'})
 
 #game_leaderboard = {"room111":{"frank": 10, "bob": 20}} 
 
 GameLeaderBoards = {}
 
 class GameInfo:
-    def create_game(self, match_id, player_list):
+    def get_leaderboard(self, match_id):
+        player_list = db_functions.view_lobby(match_id)
         if match_id not in GameLeaderBoards:
-            GameLeaderBoards[match_id] = []
+            GameLeaderBoards[match_id] = {}
             for player in player_list:
                 GameLeaderBoards[match_id][player] = 0
-            return GameLeaderBoards[match_id]
+            return self._helper(GameLeaderBoards[match_id])
         else:
-            return GameLeaderBoards[match_id]
-
-    # def find_game(self, match_id):
-    #     return GameLeaderBoards[match_id]
+            return self._helper(GameLeaderBoards[match_id])
         
-    def update_score(self,match_id, players, new_scores):
-        for scores in GameLeaderBoards[match_id]:
-            scores[1] = new_scores[players.index(scores[0])]
+    def update_score(self,match_id, new_scores):
+        players = db_functions.view_lobby(match_id)
+        for player in players:
+            GameLeaderBoards[match_id][player] = new_scores[player]
 
     def end_game(self, match_id):
         del GameLeaderBoards[match_id]
+    
+    def _helper(self, score_dictionary):
+        res = []
+        for player in score_dictionary:
+            res.append([player, score_dictionary[player]])
+        
+        res.sort(key=lambda x: x[1], reverse=True)
+        return res
 
 
 if __name__ == '__main__':
    socketio.run(app, port=5000, debug=True)
+    # g = GameInfo()
+    # print(g.get_leaderboard('chinatown'))
