@@ -8,14 +8,17 @@ const Room = ({ players = [], leaveRoom}) => {
   const { id } = router.query;
 
   // harcoded for now
-  const username = "riixardo"
-  const user_id = "richardlovesslaves"
+  const username = sessionStorage.getItem("username");
+  const user_id = sessionStorage.getItem("user_id");
 
   return (
     <div>
       <h1>Dynamic ID: {id}</h1>
       {players.length > 0 && players.map((player) => (<div className="text-white">{player}</div>))}
-      <button onClick={() => {leaveRoom(id, username, user_id)}}>LEAVE ROOM</button>
+      <button onClick={() => {
+        leaveRoom(id, username, user_id);
+        router.push("/multiplayer/rooms");
+        }}>LEAVE ROOM</button>
     </div>
   );
 };
