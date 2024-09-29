@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify
 from flask_socketio import SocketIO, join_room, emit, leave_room
 from flask_cors import CORS
 import hashlib
-import db_functions as db_functions
+import db_functions
 from openai import OpenAI
 import os
 
@@ -201,6 +201,14 @@ def handle_create_user_leaderboard(user_id, elo):
     try:
         db_functions.create_user_leaderboard(user_id, elo)
         return jsonify({"message": "Created user stats successfully"}), 201
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/get_elo', methods=['POST'])
+def handle_get_elo(user_id):
+    try:
+        db_functions.get_elok(user_id)
+        return jsonify({"message": "Got elo successfully"}), 201
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 

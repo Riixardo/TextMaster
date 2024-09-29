@@ -64,7 +64,7 @@ CREATE TABLE users (
 CREATE TABLE user_stats (
     user_id TEXT PRIMARY KEY,
     games_played INT NOT NULL,
-    time_played INT NOT NULL CHECK (time_played > 0),
+    time_played INT NOT NULL CHECK (time_played >= 0),
     games_won INT NOT NULL,
     games_lost INT NOT NULL,
     global_ranking INT NOT NULL,
