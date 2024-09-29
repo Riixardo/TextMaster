@@ -3,9 +3,13 @@
 DROP TYPE IF EXISTS DIFFICULTY CASCADE;
 DROP TYPE IF EXISTS GAMEMODE CASCADE;
 DROP TYPE IF EXISTS MISSION CASCADE;
+DROP TYPE IF EXISTS PLAYERMODE CASCADE;
 
 DROP TABLE IF EXISTS users CASCADE;
 DROP TABLE IF EXISTS user_stats CASCADE;
+
+DROP TABLE IF EXISTS lobby CASCADE;
+DROP TABLE IF EXISTS lobby_players CASCADE;
 
 DROP TABLE IF EXISTS games CASCADE;
 DROP TABLE IF EXISTS player_game_stats CASCADE;
@@ -63,6 +67,24 @@ CREATE TABLE user_stats (
     gems INT NOT NULL,
     coins INT NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users(user_id)
+);
+
+-- represents a multiplayer game lobby
+CREATE TABLE lobby (
+    lobby_id TEXT PRIMARY KEY,
+    creator_id TEXT UNIQUE NOT NULL,
+    max_players INT NOT NULL CHECK (max_players <= 8),
+    num_players INT NOT NULL CHECK (num_players <= max_players),
+    difficulty DIFFICULTY NOT NULL,
+    game_mode GAMEMODE NOT NULL,
+    FOREIGN KEY (creator_id) REFERENCES users(user_id)
+);
+
+-- player in lobby
+CREATE TABLE lobby_players (
+    lobby_id TEXT NOT NULL,
+    user_id TEXT NOT NULL,
+    PRIMARY KEY (lobby_id, user_id)
 );
 
 -- A multiplayer game instance

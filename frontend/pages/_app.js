@@ -33,7 +33,7 @@ export default function App({ Component, pageProps }) {
     });
 
     socket.on('room_updated', (data) => {
-      console.log(data);
+      console.log("FUCKING UPDATEFD");
       setPlayers(data['players'])
     });
 
@@ -48,16 +48,18 @@ export default function App({ Component, pageProps }) {
     };
   }, []);
 
-  const createRoom = async (creator) => {
-    socketInstance.emit('create_room', { creator });
+  const createRoom = async (creator, creator_id, game_mode, difficulty, max_players) => {
+    socketInstance.emit('create_room', { creator, creator_id, game_mode, difficulty, max_players });
+    console.log("WDPWOAKDAWPDWDDW");
   };
 
-  const joinRoom = async (room, user) => {
-    socketInstance.emit('join_room', { room, user });
+  const joinRoom = async (room, user, user_id) => {
+    socketInstance.emit('join_room', { room, user, user_id });
   };
 
-  const leaveRoom = async (room, user) => {
-    socketInstance.emit('leave_room', { room, user });
+  const leaveRoom = async (room, user, user_id) => {
+    console.log("LEVEE");
+    socketInstance.emit('leave_room', { room, user, user_id });
   };
 
   return (
