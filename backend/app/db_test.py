@@ -17,7 +17,7 @@ test_email = "testuser@example.com"
 test_password = "franklovesrichardschema"
 test_profile_pic = "testpic.png"
 test_games_played = 10
-test_time_played = 3600
+test_time_played = 0
 test_games_won = 5
 test_games_lost = 5
 test_global_ranking = 1
@@ -58,7 +58,8 @@ def run_schema():
 def test_functions():
     run_schema()
     # Test create_user_stats
-    create_user(test_user_id, test_username, test_email, test_password,test_profile_pic)
+    create_user(test_user_id,"Textmaster", "textmaster@gmail.com", "123")
+
 
     create_user_stats(test_user_id, test_games_played, test_time_played, test_games_won, test_games_lost, test_global_ranking, test_gems, test_coins)
 
@@ -81,6 +82,9 @@ def test_functions():
 
     # Test send_message
     send_message(test_message_id, test_user_id, test_thread_id, test_content)
+
+    #
+    print(retrieve_messages(test_thread_id))
 
     # Test retrieve_messages
     messages = retrieve_messages(test_thread_id)

@@ -5,8 +5,6 @@ import hashlib
 import db_functions as db_functions
 from openai import OpenAI
 import os
-
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 from dotenv import load_dotenv
 
 
@@ -81,16 +79,25 @@ def handle_ai_response_prompt(previous_conversation, prompt):
     generated_prompt = ai_response_prompt(previous_conversation, prompt)
     return jsonify({'ai_response_text': generated_prompt}), 200
 
+
 def generate_prompt(prompt_diffculty):
     response = client.chat.completions.create(model="gpt-4",
     messages=[
         {"role": "system", "content": "You are an useful program that will do anything to help the user, making sure you satisfy the user to the best of your abilities"},
         {"role": "user", "content": f"Generate me an conversation topic is likely to show up in people's lives. that is 2 sentences long, that are designed to be graded for english texting fluency, make sure the conversation is engaging and interesting. make it sound as human as possible. {difficulty[prompt_diffculty]}"}
     ])
-    return response.choices[0].message.content.strip()
+    return jsonify({"status": "success", "content": response.choices[0].message.content.strip()})
 
 # TODO: check if there could be too many words, might cause crash
-def ai_response_prompt(previous_conversation, prompt):
+@app.route('/ai_response', methods=['POST'])
+def ai_response_prompt():
+    data = request.json
+    previous_conversation = data.get("previous_conversation")
+    prompt = data.get("prompt")
+    thread_id = data.get("thread_id")
+    print(data)
+    print("here's the data")
+    print(previous_conversation)
     prev_convo = ""
     is_AI = True
     for convo in previous_conversation:
@@ -99,13 +106,13 @@ def ai_response_prompt(previous_conversation, prompt):
         else:
             prev_convo += "the other person said: "
         is_AI = not is_AI
-        prev_convo += convo + "\n"
+        prev_convo += convo["text"] + "\n"
     response = client.chat.completions.create(model="gpt-4",
         messages=[
             {"role": "system", "content": "You are an competent but easy conversation program, you should behave like one, that is trying to have a normal conversation with the user, make sure you best mimic how a normal human would engage in the conversation."},
             {"role": "user", "content": f"The starting conversation topic is {prompt}. Here's the previous conversation that has been talked about so far: {prev_convo}. Generate me the a starting piece to this prompt like an online text conversation, try to come up with personalized example based on the prompt, include that in the first reponse, keep the responses between 1 to 2 sentences, only include what you say to the person in the response."}
     ])
-    return response.choices[0].message.content.strip()
+    return jsonify({"status": "success", "content": response.choices[0].message.content.strip()})
 
 
 def grade_user_responses(previous_conversation, prompt):
@@ -140,6 +147,30 @@ def grade_user_responses(previous_conversation, prompt):
     
     return grades
 
+
+@app.route('/send_message', methods=['POST'])
+def send_message():
+    data = request.json
+    user_id = data.get('user_id')
+    thread_id = data.get('thread_id')
+    content = data.get('content')
+    print("I am at least here 2")
+    if not user_id or not thread_id or not content:
+        return jsonify({"error": "Missing required parameters"}), 400
+
+    # Generate a new message_id
+    message_id = db_functions.generate_new_message_id()
+    if message_id is None:
+        return jsonify({"error": "Failed to generate message_id"}), 500
+
+    # Call the send_message function
+    print("what's up")
+    try:
+        db_functions.send_message(message_id, user_id, thread_id, content)
+        return jsonify({"status": "success", "message_id": message_id})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 # --------------- SignUp / Login Functions ---------------
 
 @app.route('/signup', methods=['POST'])
@@ -157,6 +188,12 @@ def login():
     password = data.get('password')
     return jsonify(db_functions.login_user(username, password))
 
+@app.route('/get_user_stats', methods=['POST'])
+def get_user_stats():
+    data = request.json
+    user_id = data.get('user_id')
+    return jsonify(db_functions.get_user_stats(user_id))
+
 @app.route('/create_user_stats', methods=['POST'])
 def handle_create_user_stats(user_id, games_played, time_played, games_won, games_lost, global_ranking, gems, coins):
     try:
@@ -170,6 +207,14 @@ def handle_create_user_leaderboard(user_id, elo):
     try:
         db_functions.create_user_leaderboard(user_id, elo)
         return jsonify({"message": "Created user stats successfully"}), 201
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/get_elo', methods=['POST'])
+def handle_get_elo(user_id):
+    try:
+        db_functions.get_elok(user_id)
+        return jsonify({"message": "Got elo successfully"}), 201
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 

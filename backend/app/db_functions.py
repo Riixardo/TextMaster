@@ -14,6 +14,28 @@ daily_missions = [(1, 'games', 3), (2, 'combo', 10), (3, 'win', 1)]
 
 # =================== user stats stuff ====================================================================
 
+# untested
+def create_user(user_id, username, email, password, profile_pic):
+    try:
+        conn = psycopg2.connect(db_url)
+        cursor = conn.cursor()
+
+        sql_command = """
+        INSERT INTO users (user_id, username, email, password, profile_pic)
+        VALUES (%s, %s, %s, %s, %s);
+        """
+
+        cursor.execute(sql_command, [user_id, username, email, password, profile_pic])
+
+        conn.commit()  # Commit the transaction
+        cursor.close()
+        conn.close()
+        return {"status": -1}
+
+    except psycopg2.Error as e:
+        print(f"Error: {e}")
+        return {"status": -1}
+
 #untested
 def create_user_stats(user_id, games_played, time_played, games_won, games_lost, global_ranking, gems, coins):
     try:
@@ -56,28 +78,53 @@ def create_user_leaderboard(user_id, elo):
     except psycopg2.Error as e:
         print(f"Error: {e}")
 
-# # untested
-# def get_user_stats(user_id):
-#     try:
-#         conn = psycopg2.connect(db_url)
-#         cursor = conn.cursor(cursor_factory=DictCursor)
+# untested
+def get_elo(user_id):
+    try:
+        conn = psycopg2.connect(db_url)
+        cursor = conn.cursor() 
 
-#         sql_command = """
-#         SELECT * FROM user_stats WHERE user_id = %s;
-#         """
+        # Get the ELO of the specified user
+        cursor.execute("SELECT elo FROM leaderboard WHERE user_id = %s;", [user_id])
+        user_elo = cursor.fetchone()
 
-#         cursor.execute(sql_command, [user_id])
+        if not user_elo:
+            print(f"User {user_id} not found in the leaderboard.")
+            return None
 
-#         result = cursor.fetchone()
-        
+        user_elo = user_elo[0]
 
-#         cursor.close()
-#         conn.close()
+        cursor.close()
+        conn.close()
 
-#         print(f"User {user_id} with ELO {elo} added to the leaderboard.")
+        return user_elo
 
-#     except psycopg2.Error as e:
-#         print(f"Error: {e}")
+    except psycopg2.Error as e:
+        print(f"Error: {e}")
+        return None
+    
+# untested
+def get_user_stats(user_id):
+    try:
+        conn = psycopg2.connect(db_url)
+        cursor = conn.cursor(cursor_factory=DictCursor)
+
+        sql_command = """
+        SELECT * FROM user_stats WHERE user_id = %s;
+        """
+
+        cursor.execute(sql_command, [user_id])
+
+        result = cursor.fetchone()
+
+        cursor.close()
+        conn.close()
+
+        # hard coded elo for now until Sam finishes his function
+        return {"status": 0, "stats": result, "elo": get_elo(user_id)}
+
+    except psycopg2.Error as e:
+        print(f"Error: {e}")
 
 # untested
 def get_global_rank(user_id):
@@ -109,7 +156,7 @@ def get_global_rank(user_id):
         return None
     
 # untested
-def create_user(username, email, password):
+def create_user(user_id, username, email, password):
     randomStringId = username + "lovesslaves"
     try:
         conn = psycopg2.connect(db_url)
@@ -120,13 +167,14 @@ def create_user(username, email, password):
         VALUES (%s, %s, %s, %s, %s);
         """
 
-        cursor.execute(sql_command, [randomStringId, username, email, password, "LOL"])
+        cursor.execute(sql_command, [user_id, username, email, password, "LOL"])
         conn.commit()
         cursor.close()
         conn.close()
-        create_user_leaderboard(randomStringId, 100)
-        create_user_stats(randomStringId, 0, 0, 0, 0, get_global_rank(randomStringId), 0, 0)
-        return {"status": 0, "user_id": randomStringId, "username": username}
+        # TODO figure this out later
+        #create_user_leaderboard(randomStringId, 100)
+        #create_user_stats(user_id, 0, 0, 0, 0, get_global_rank(randomStringId), 0, 0)
+        return {"status": 0, "user_id": user_id, "username": username}
 
     except psycopg2.Error as e:
         print(f"Error: {e}")
@@ -335,7 +383,7 @@ def view_lobby(room):
                 VALUES (%s, %s, %s, %s, %s, %s, %s);
             """
 
-            cursor.execute(sql_command, [user_id, game_id, flow, conciseness, clarity, relevance])
+            cursor.execute(sql_command, [user_id, game_id, 100, 100, 100, 100])
             conn.commit()
 
             print(f"Score added for user {user_id} in game {game_id}")
@@ -433,6 +481,7 @@ def send_message(message_id, user_id, thread_id, content):
         cursor = conn.cursor()
         cursor.execute(sql_commands1, [message_id, user_id, thread_id, content, datetime.now()])
 
+        conn.commit()
 
         cursor.close()
         conn.close()
@@ -454,6 +503,24 @@ def retrieve_messages(thread_id):
         conn.close()
 
         return messages
+
+    except psycopg2.Error as e:
+        print(f"Error: {e}")
+        return None
+
+def generate_new_message_id():
+    try:
+        conn = psycopg2.connect(db_url)
+        cursor = conn.cursor()
+
+        sql_command = "SELECT COALESCE(MAX(message_id), 0) + 1 FROM message;"
+        cursor.execute(sql_command)
+        new_message_id = cursor.fetchone()[0]
+
+        cursor.close()
+        conn.close()
+
+        return new_message_id
 
     except psycopg2.Error as e:
         print(f"Error: {e}")

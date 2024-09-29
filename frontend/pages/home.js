@@ -8,11 +8,22 @@ import axios from "axios";
 const Home = () => {
     const [selectedButton, setSelectedButton] = useState(null);
     const [username, setUsername] = useState(null);
+    const [userStats, setUserStats] = useState([]);
+    const [userElo, setUserElo] = useState(null);
     const headingRef = useRef(null);
     const [buttonWidth, setButtonWidth] = useState('auto');
 
+    const getUserStats = async () => {
+        const response = await axios.post("http://127.0.0.1:5000/get_user_stats", {user_id: sessionStorage.getItem("user_id")});
+        console.log(response.data);
+        setUserStats(response.data.stats);
+        setUserElo(response.data.elo);
+    }
+
     useEffect(() => {
         setUsername(sessionStorage.getItem("username"));
+        getUserStats();
+        
         if (headingRef.current) {
             setButtonWidth(headingRef.current.offsetWidth);
         }
@@ -35,14 +46,11 @@ const Home = () => {
                         {username} <span className="text-sm">Level 32</span>
                     </h2>}
                     <div className="flex space-x-8 mt-2" style={{ color: 'black' }}>
-                        <p>win rate: 56%</p>
-                        <p>global position: #1032</p>
-                        <p>games played: 55</p>
-                        <p>total playtime: 10.5 hours</p>
-                    </div>
-                    <div className="flex items-center space-x-4 mt-4">
-                        <div className="bg-green-200 p-2 rounded-lg text-green-600 font-bold">1001</div>
-                        <div className="bg-yellow-200 p-2 rounded-lg text-yellow-600 font-bold">1001</div>
+                        {userStats.length > 0 && <p>win rate: {userStats[3] != 0? userStats[1] / userStats[3] : 0}%</p>}
+                        {userStats.length > 0 && <p>global position: #{userStats[5]}</p>}
+                        {userStats.length > 0 && <p>games played: {userStats[1]}</p>}
+                        {userStats.length > 0 && <p>total playtime: {userStats[2]} hours</p>}
+                        {userStats.length == 0 && <p>Loading Stats...</p>}
                     </div>
                 </div>
 
@@ -55,8 +63,8 @@ const Home = () => {
                             <div className="ml-4">
                                 <h3 className="text-lg font-bold text-blue-500">Current Elo: Gold</h3>
                                 <div className="flex items-center space-x-4 mt-2">
-                                    <div className="bg-green-200 p-2 rounded-lg text-green-600 font-bold">1001</div>
-                                    <div className="bg-yellow-200 p-2 rounded-lg text-yellow-600 font-bold">1001</div>
+                                    {userStats.length > 0 && <div className="bg-green-200 p-2 rounded-lg text-green-600 font-bold">Gems: {userStats[6]}</div>}
+                                    {userStats.length > 0 && <div className="bg-yellow-200 p-2 rounded-lg text-yellow-600 font-bold">Coins: {userStats[7]}</div>}
                                 </div>
                             </div>
                         </div>
@@ -64,7 +72,7 @@ const Home = () => {
                             <div className="w-full h-2 bg-gray-200 rounded">
                                 <div className="h-2 bg-blue-500 rounded" style={{ width: '80%' }}></div>
                             </div>
-                            <span className="block text-center text-gray-500 text-sm mt-1">2500/3000</span>
+                            {userElo && <span className="block text-center text-gray-500 text-sm mt-1">Elo: {userElo}</span>}
                         </div>
                     </div>
 

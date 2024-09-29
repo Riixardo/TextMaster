@@ -2,11 +2,14 @@ import { useState, useEffect, useRef } from "react";
 import React from "react";
 import Sidebar from "@/components/side_bar";
 import LeaderboardCard from "@/components/leaderboard_card";
+import { useRouter } from "next/router";
+import axios from "axios";
 
 const Leaderboard = () => {
     const [selectedButton, setSelectedButton] = useState(null);
     const headingRef = useRef(null);
     const [buttonWidth, setButtonWidth] = useState('auto');
+    
 
     useEffect(() => {
         if (headingRef.current) {
@@ -18,6 +21,14 @@ const Leaderboard = () => {
         setSelectedButton(buttonIndex);
     };
 
+    const router = useRouter();
+
+    const handleProfileElo = async () => {
+        const response = await axios.post('http://127.0.0.1:5000/get_elo', {
+            user_id: sessionStorage.getItem("user_id") || "ERROR"
+        })
+    }
+        
     const leaderboardData = [
         { placing: 1, username: "User1", points: 1500, profilePic: "https://via.placeholder.com/40" },
         { placing: 2, username: "User2", points: 1400, profilePic: "https://via.placeholder.com/40" },

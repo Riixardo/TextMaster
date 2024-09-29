@@ -5,6 +5,7 @@ import Image from 'next/image';
 import robotIcon from '../public/Profile-Picture-AI 1.png';
 import { useRouter } from 'next/router';
 import axios from 'axios';
+import axios from 'axios';
 
 export default function Messaging() {
   const [messages, setMessages] = useState([]);
@@ -15,18 +16,57 @@ export default function Messaging() {
   const [loadingLeaderboard, setLoadingLeaderboard] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
+  const getMessages = () => {
+    return messages;
+  };
   const router = useRouter();
-
-
-
-  const handleSendMessage = () => {
-    if (inputValue.trim() === '') return;
-    setMessages((prevMessages) => [...prevMessages, { text: inputValue, sender: 'You' }]);
+  
+  const handleSendMessage = async () => {
+    if (inputValue.trim() === '') {
+      console.log('Input value is empty, returning');
+      return;
+    }
+    const updatedMessages = [...messages, { text: inputValue, sender: "user" }];
+    // Create a new array with the updated messages
+    setMessages(updatedMessages => [...updatedMessages, { text: inputValue, sender: 'user' }]);
+    
+    
+    // Clear the input field
     setInputValue('');
+
+    try {
+      const response = await axios.post('http://127.0.0.1:5000/send_message', {
+        user_id: "test_user",
+        thread_id: 1020,
+        content: inputValue
+      });
+
+      console.log('AI response received:', response.data);
+
+      // Pass the updated messages to receiveMessage
+      await receiveMessage(updatedMessages);
+    } catch (error) {
+      console.error('Error sending message:', error);
+    }
   };
 
-  const receiveMessage = (message) => {
-    setMessages((prevMessages) => [...prevMessages, { text: message, sender: 'AI' }]);
+
+  // Function to handle receiving a message
+  const receiveMessage = async (updatedMessages) => {
+    try {
+      const response = await axios.post('http://127.0.0.1:5000/ai_response', {
+        previous_conversation: updatedMessages,  // Use the passed messages
+        prompt: "any prompt is fine",
+        thread_id: 1020
+      });
+      
+      console.log(updatedMessages);
+
+      // Update the state with the new AI message
+      setMessages(prevMessages => [...prevMessages, { text: response.data.content, sender: 'AI' }]);
+    } catch (error) {
+      console.error('Error receiving message:', error);
+    }
   };
 
   const get_leaderboard = async (matchId) => {
@@ -106,8 +146,8 @@ if (!matchId || !userId || leaderboard.length === 0) {
             ) : (
               <ul>
                 {messages.map((message, index) => (
-                  <li key={index} className={`mb-2 flex ${message.sender === 'You' ? 'justify-end' : 'justify-start'}`}>
-                    {message.sender !== 'You' && (
+                  <li key={index} className={`mb-2 flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
+                    {message.sender !== 'user' && (
                       <div className="flex items-end">
                         <Image
                           src={robotIcon}
@@ -118,9 +158,8 @@ if (!matchId || !userId || leaderboard.length === 0) {
                         />
                       </div>
                     )}
-                    <p className="message-box" style={{ backgroundColor: message.sender === 'You' ? '#D1F8FF' : '#F0F0F0' }}>
-                      {message.text}
-                    </p>
+                    
+                      <p className='message-box' style={{backgroundColor: message.sender === 'user' ? '#D1F8FF' : '#F0F0F0'}}>{message.text}</p>
                   </li>
                 ))}
               </ul>

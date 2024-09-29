@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import React from "react";
 import Sidebar from "@/components/side_bar";
+import { useRouter } from "next/router";
 
 const gameSettings = () => {
 
@@ -21,6 +22,12 @@ const gameSettings = () => {
     const handleButtonClick = (buttonIndex) => {
         setSelectedButton(buttonIndex);
     };
+
+    const router = useRouter();
+
+    const handleMessagingClick = () => {
+        router.push('/messaging');
+    }
 
     return (
         <div className="min-h-screen w-screen" style={{ display: 'flex' }}>
@@ -84,7 +91,7 @@ const gameSettings = () => {
                     </div>    
                 </div>
                 <div style={{textAlign:'right', width:'1000px'}}>
-                    <button> start game </button>
+                    <button onClick={handleMessagingClick}> start game </button>
                 </div>
             </div>
         </div>
