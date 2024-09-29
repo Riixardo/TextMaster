@@ -326,7 +326,9 @@ def end_game():
     game_info.end_game(match_id)
     return jsonify({'message': 'Game ended'})
 
-#game_leaderboard = {"room111":{"frank": 10, "bob": 20}} 
+@app.route('/api/get_lobbies', methods=['GET'])
+def ge_lobbies():
+    return jsonify({"lobbies": db_functions.get_lobbies()})
 
 GameLeaderBoards = {}
 

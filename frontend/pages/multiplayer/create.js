@@ -75,24 +75,12 @@ const Create = ({ createRoom }) => {
 
             <div style = {{backgroundColor: '#e0e0e0', padding: '25px', borderRadius: '10px', marginBottom: '20px'}}>
                 <div style={{textAlign: 'left', marginLeft: '100px', paddingBottom: '7.5px'}}>
-                    <h2 style={{color: '#000000', fontWeight: 900}}>Visibility: </h2>
+                    <h2 style={{color: '#000000', fontWeight: 900}}>Max Players: </h2>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'left', marginLeft: '100px', gap: '260px' }}>
                     <label>
-                        <input type = "radio" value= "2" checked ={maxPlayers === "2"} onChange={() => setMaxPlayers('2')} />
-                        2
-                    </label>
-                    <label>
-                        <input type = "radio" value= "3" checked ={maxPlayers === "3"} onChange={() => setMaxPlayers('3')} />
-                        3
-                    </label>
-                    <label>
-                        <input type = "radio" value= "2" checked ={maxPlayers === "2"} onChange={() => setMaxPlayers('2')} />
-                        2
-                    </label>
-                    <label>
-                        <input type = "radio" value= "3" checked ={maxPlayers === "3"} onChange={() => setMaxPlayers('3')} />
-                        3
+                    <input type="range" id="maxPlayers" name="maxPlayers" min="2" max="8" value={maxPlayers} onChange={(e) => setMaxPlayers(e.target.value)}/>
+                        {maxPlayers}
                     </label>
                 </div>    
             </div>
