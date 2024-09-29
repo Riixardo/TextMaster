@@ -6,34 +6,63 @@ import robotIcon from '../public/Profile-Picture-AI 1.png';
 import { useRouter } from 'next/router';
 import axios from 'axios';
 
-
 export default function Messaging() {
   const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState('');
   const [matchId, setMatchId] = useState(null); // Initialize match_id state
   const [leaderboard, setLeaderboard] = useState([]); // Initialize leaderboard state
 
+  const getMessages = () => {
+    return messages;
+  };
   const router = useRouter();
-
-  const handleSendMessage = async (e) => {
-    if (inputValue.trim() === '') return;
-    setMessages([...messages, { text: inputValue, sender: 'You' }]);
+  
+  const handleSendMessage = async () => {
+    if (inputValue.trim() === '') {
+      console.log('Input value is empty, returning');
+      return;
+    }
+    const updatedMessages = [...messages, { text: inputValue, sender: "user" }];
+    // Create a new array with the updated messages
+    setMessages(updatedMessages => [...updatedMessages, { text: inputValue, sender: 'user' }]);
+    
+    
+    // Clear the input field
     setInputValue('');
+
     try {
       const response = await axios.post('http://127.0.0.1:5000/send_message', {
         user_id: "test_user",
         thread_id: 1020,
         content: inputValue
       });
-      console.log(response);
-      console.log(response.data);
+
+      console.log('AI response received:', response.data);
+
+      // Pass the updated messages to receiveMessage
+      await receiveMessage(updatedMessages);
     } catch (error) {
       console.error('Error sending message:', error);
     }
   };
 
-  const receiveMessage = (message) => {
-    setMessages([...messages, { text: message, sender: 'AI' }]);
+
+  // Function to handle receiving a message
+  const receiveMessage = async (updatedMessages) => {
+    try {
+      const response = await axios.post('http://127.0.0.1:5000/ai_response', {
+        previous_conversation: updatedMessages,  // Use the passed messages
+        prompt: "any prompt is fine",
+        thread_id: 1020
+      });
+      
+      console.log(updatedMessages);
+
+      // Update the state with the new AI message
+      setMessages(prevMessages => [...prevMessages, { text: response.data.content, sender: 'AI' }]);
+    } catch (error) {
+      console.error('Error receiving message:', error);
+    }
   };
 
   const get_leaderboard = async (matchId) => {
@@ -47,35 +76,19 @@ export default function Messaging() {
     }
   };
 
-
   const handleKeyDown = (event) => {
     if (event.key === 'Enter') {
       handleSendMessage();
     }
   };
 
-    useEffect(() => {
+  useEffect(() => {
     if (router.query.matchId) {
       setMatchId(router.query.matchId);
-      get_leaderboard();
+      get_leaderboard(router.query.matchId);
     }
   }, [router.query.matchId]);
 
-
-  // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     const randomMessages = [
-  //       'Hello!',
-  //       'How are you?',
-  //       'What are you doing?',
-  //       'Nice to meet you!',
-  //       'Goodbye!'
-  //     ];
-  //     const randomMessage = randomMessages[Math.floor(Math.random() * randomMessages.length)];
-  //     receiveMessage(randomMessage);
-  //   }, 5000);
-  //   return () => clearInterval(interval);
-  // }, [messages]);
 
   return (
     <div className="flex">
@@ -92,8 +105,8 @@ export default function Messaging() {
             ) : (
               <ul>
                 {messages.map((message, index) => (
-                  <li key={index} className={`mb-2 flex ${message.sender === 'You' ? 'justify-end' : 'justify-start'}`}>
-                    {message.sender !== 'You' && (
+                  <li key={index} className={`mb-2 flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
+                    {message.sender !== 'user' && (
                       <div className="flex items-end">
                         <Image
                           src={robotIcon}
@@ -105,7 +118,7 @@ export default function Messaging() {
                       </div>
                     )}
                     
-                      <p className='message-box' style={{backgroundColor: message.sender === 'You' ? '#D1F8FF' : '#F0F0F0'}}>{message.text}</p>
+                      <p className='message-box' style={{backgroundColor: message.sender === 'user' ? '#D1F8FF' : '#F0F0F0'}}>{message.text}</p>
                   </li>
                 ))}
               </ul>
