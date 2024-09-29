@@ -13,7 +13,7 @@ const Sidebar = () => {
     const menuItems = [
         { name: 'Home', path: '/home' },
         { name: 'Multiplayer', path: '/multiplayer/join_or_create' },
-        { name: 'Singleplayer', path: '/singleplayer' },
+        { name: 'Singleplayer', path: '/game_settings' },
         { name: 'Leaderboard', path: '/leaderboard' },
         { name: 'Shop', path: '/shop' },
     ];
