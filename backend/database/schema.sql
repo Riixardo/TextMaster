@@ -123,13 +123,15 @@ CREATE TABLE leaderboard (
 CREATE TABLE game_scores (
     user_id TEXT NOT NULL,
     game_id INT NOT NULL,
+    message_id SERIAL NOT NULL,
     flow: INT NOT NULL,
     conciseness: INT NOT NULL,
     clarity: INT NOT NULL,
     relevance: INT NOT NULL,
     FOREIGN KEY (user_id) REFERENCES user(user_id),
     FOREIGN KEY (game_id) REFERENCES games(game_id),
-    PRIMARY KEY(user_id, game_id)
+    FOREIGN KEY (message_id) REFERENCES message(message_id),
+    PRIMARY KEY(user_id, game_id, message_id)
 )
 
 -- Store all the possible missions

@@ -276,14 +276,14 @@ def view_lobby(room):
     except psycopg2.Error as e:
         print(f"Error: {e}")
 
-    def add_game_score(user_id, game_id, flow, conciseness, clarity, relevance):
+    def add_game_score(user_id, game_id, message_id, flow, conciseness, clarity, relevance):
         try:
             conn = psycopg2.connect(db_url)
             cursor = conn.cursor()
 
             sql_command = """
-                INSERT INTO game_scores (user_id, game_id, flow, conciseness, clarity, relevance)
-                VALUES (%s, %s, %s, %s, %s, %s);
+                INSERT INTO game_scores (user_id, game_id, message_id, flow, conciseness, clarity, relevance)
+                VALUES (%s, %s, %s, %s, %s, %s, %s);
             """
 
             cursor.execute(sql_command, [user_id, game_id, flow, conciseness, clarity, relevance])
@@ -294,6 +294,62 @@ def view_lobby(room):
         except psycopg2.Error as e:
             conn.rollback()
             print(f"Error: {e}")
+
+        finally:
+            cursor.close()
+            conn.close()
+
+
+    """
+    [
+    {
+        "message_id": 101,
+        "flow": 8,
+        "conciseness": 7,
+        "clarity": 9,
+        "relevance": 10
+    },
+    {
+        "message_id": 102,
+        "flow": 6,
+        "conciseness": 8,
+        "clarity": 7,
+        "relevance": 9
+    },
+    {
+        "message_id": 103,
+        "flow": 9,
+        "conciseness": 6,
+        "clarity": 8,
+        "relevance": 7
+    }
+    ]
+    """
+    def get_user_game_scores(user_id, game_id):
+        try:
+            conn = psycopg2.connect(db_url)
+            cursor = conn.cursor()
+
+            sql_command = """
+                SELECT message_id, flow, conciseness, clarity, relevance
+                FROM game_scores
+                WHERE user_id = %s AND game_id = %s;
+            """
+
+            cursor.execute(sql_command, [user_id, game_id])
+            scores = cursor.fetchall()
+
+            # Get column names
+            colnames = [desc[0] for desc in cursor.description]
+
+            # Convert the results to a list of dictionaries
+            scores_list = [dict(zip(colnames, score)) for score in scores]
+
+            return scores_list
+
+        except psycopg2.Error as e:
+            print(f"Error: {e}")
+            return []
 
         finally:
             cursor.close()
