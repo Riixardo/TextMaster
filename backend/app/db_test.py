@@ -58,6 +58,8 @@ def run_schema():
 def test_functions():
     run_schema()
     # Test create_user_stats
+    create_user("1", "Textmaster", "textmaster@gmail.com", "123", "hello.png")
+
     create_user(test_user_id, test_username, test_email, test_password,test_profile_pic)
 
     create_user_stats(test_user_id, test_games_played, test_time_played, test_games_won, test_games_lost, test_global_ranking, test_gems, test_coins)

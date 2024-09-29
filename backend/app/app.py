@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify
 from flask_socketio import SocketIO, join_room, emit, leave_room
 from flask_cors import CORS
 import hashlib
-import backend.database.db_functions as db_functions
+import db_functions as db_functions
 from openai import OpenAI
 import os
 
@@ -90,7 +90,8 @@ def generate_prompt(prompt_diffculty):
     return response.choices[0].message.content.strip()
 
 # TODO: check if there could be too many words, might cause crash
-def ai_response_prompt(previous_conversation, prompt):
+@app.route('/ai_response', methods=['POST'])
+def ai_response_prompt(previous_conversation, prompt, thread_id):
     prev_convo = ""
     is_AI = True
     for convo in previous_conversation:
@@ -105,6 +106,9 @@ def ai_response_prompt(previous_conversation, prompt):
             {"role": "system", "content": "You are an competent but easy conversation program, you should behave like one, that is trying to have a normal conversation with the user, make sure you best mimic how a normal human would engage in the conversation."},
             {"role": "user", "content": f"The starting conversation topic is {prompt}. Here's the previous conversation that has been talked about so far: {prev_convo}. Generate me the a starting piece to this prompt like an online text conversation, try to come up with personalized example based on the prompt, include that in the first reponse, keep the responses between 1 to 2 sentences, only include what you say to the person in the response."}
     ])
+    # adding the message onto the database
+    new_message_id = db_functions.generate_new_message_id()
+    db_functions.send_message(new_message_id, 0, thread_id, response.choices[0].message.content.strip())
     return response.choices[0].message.content.strip()
 
 
@@ -139,6 +143,33 @@ def grade_user_responses(previous_conversation, prompt):
                 grades[smaller_part[0]] = int(smaller_part[1])
     
     return grades
+
+
+@app.route('/send_message', methods=['POST'])
+def send_message():
+    data = request.json
+    user_id = data.get('user_id')
+    thread_id = data.get('thread_id')
+    content = data.get('content')
+    print("NIGGA")
+    print(user_id)
+    print(thread_id)
+    print(content)
+    if not user_id or not thread_id or not content:
+        return jsonify({"error": "Missing required parameters"}), 400
+
+    # Generate a new message_id
+    message_id = db_functions.generate_new_message_id()
+    print(message_id)
+    if message_id is None:
+        return jsonify({"error": "Failed to generate message_id"}), 500
+
+    # Call the send_message function
+    try:
+        db_functions.send_message(message_id, user_id, thread_id, content)
+        return jsonify({"status": "success", "message_id": message_id})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 # --------------- SignUp / Login Functions ---------------
 

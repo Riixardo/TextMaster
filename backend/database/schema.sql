@@ -45,6 +45,8 @@ CREATE TYPE MISSION AS ENUM ('games', 'win', 'combo');
 -- DATA TABLE DEFINITIONS
 -------------------------------------------------------------------------------------------------
 
+
+
 -- A user 
 CREATE TABLE users (
     user_id TEXT PRIMARY KEY,
@@ -69,6 +71,23 @@ CREATE TABLE user_stats (
     gems INT NOT NULL,
     coins INT NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users(user_id)
+);
+
+-- A message thread
+CREATE TABLE thread (
+    thread_id SERIAL PRIMARY KEY,
+    thread_name TEXT NOT NULL
+);
+
+-- A single message
+CREATE TABLE message (
+    message_id SERIAL PRIMARY KEY,
+    user_id TEXT NOT NULL,
+    thread_id INT NOT NULL,
+    content TEXT NOT NULL,
+    created_at TIMESTAMP NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(user_id),
+    FOREIGN KEY (thread_id) REFERENCES thread(thread_id)
 );
 
 -- represents a multiplayer game lobby
@@ -124,15 +143,15 @@ CREATE TABLE game_scores (
     user_id TEXT NOT NULL,
     game_id INT NOT NULL,
     message_id SERIAL NOT NULL,
-    flow: INT NOT NULL,
-    conciseness: INT NOT NULL,
-    clarity: INT NOT NULL,
-    relevance: INT NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES user(user_id),
+    flow INT NOT NULL,
+    conciseness INT NOT NULL,
+    clarity INT NOT NULL,
+    relevance INT NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(user_id),
     FOREIGN KEY (game_id) REFERENCES games(game_id),
     FOREIGN KEY (message_id) REFERENCES message(message_id),
     PRIMARY KEY(user_id, game_id, message_id)
-)
+);
 
 -- Store all the possible missions
 CREATE TABLE missions (
@@ -167,22 +186,6 @@ CREATE TABLE settings (
     FOREIGN KEY (user_id) REFERENCES users(user_id)
 );
 
--- A message thread
-CREATE TABLE thread (
-    thread_id SERIAL PRIMARY KEY,
-    thread_name TEXT NOT NULL
-);
-
--- A single message
-CREATE TABLE message (
-    message_id SERIAL PRIMARY KEY,
-    user_id TEXT NOT NULL,
-    thread_id INT NOT NULL,
-    content TEXT NOT NULL,
-    created_at TIMESTAMP NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES users(user_id),
-    FOREIGN KEY (thread_id) REFERENCES thread(thread_id)
-);
 
 -- Specified relationship between thread and message
 CREATE TABLE user_thread (

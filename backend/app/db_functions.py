@@ -23,8 +23,6 @@ def create_user(user_id, username, email, password, profile_pic):
         sql_command = """
         INSERT INTO users (user_id, username, email, password, profile_pic)
         VALUES (%s, %s, %s, %s, %s);
-        INSERT INTO users (user_id, username, email, password, profile_pic)
-        VALUES (%s, %s, %s, %s, %s);
         """
 
         cursor.execute(sql_command, [user_id, username, email, password, profile_pic])
@@ -286,7 +284,7 @@ def view_lobby(room):
                 VALUES (%s, %s, %s, %s, %s, %s, %s);
             """
 
-            cursor.execute(sql_command, [user_id, game_id, flow, conciseness, clarity, relevance])
+            cursor.execute(sql_command, [user_id, game_id, 100, 100, 100, 100])
             conn.commit()
 
             print(f"Score added for user {user_id} in game {game_id}")
@@ -405,6 +403,24 @@ def retrieve_messages(thread_id):
         conn.close()
 
         return messages
+
+    except psycopg2.Error as e:
+        print(f"Error: {e}")
+        return None
+
+def generate_new_message_id():
+    try:
+        conn = psycopg2.connect(db_url)
+        cursor = conn.cursor()
+
+        sql_command = "SELECT COALESCE(MAX(message_id), 0) + 1 FROM message;"
+        cursor.execute(sql_command)
+        new_message_id = cursor.fetchone()[0]
+
+        cursor.close()
+        conn.close()
+
+        return new_message_id
 
     except psycopg2.Error as e:
         print(f"Error: {e}")

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Image from 'next/image'; 
 import robotIcon from '../public/Profile-Picture-AI 1.png';
 import { useRouter } from 'next/router';
+import axios from 'axios';
 
 
 export default function Messaging() {
@@ -14,11 +15,21 @@ export default function Messaging() {
 
   const router = useRouter();
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async (e) => {
     if (inputValue.trim() === '') return;
     setMessages([...messages, { text: inputValue, sender: 'You' }]);
     setInputValue('');
-    console.log(messages);
+    try {
+      const response = await axios.post('http://127.0.0.1:5000/send_message', {
+        user_id: "test_user",
+        thread_id: 1020,
+        content: inputValue
+      });
+      console.log(response);
+      console.log(response.data);
+    } catch (error) {
+      console.error('Error sending message:', error);
+    }
   };
 
   const receiveMessage = (message) => {
