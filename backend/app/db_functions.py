@@ -276,6 +276,29 @@ def view_lobby(room):
     except psycopg2.Error as e:
         print(f"Error: {e}")
 
+    def add_game_score(user_id, game_id, flow, conciseness, clarity, relevance):
+        try:
+            conn = psycopg2.connect(db_url)
+            cursor = conn.cursor()
+
+            sql_command = """
+                INSERT INTO game_scores (user_id, game_id, flow, conciseness, clarity, relevance)
+                VALUES (%s, %s, %s, %s, %s, %s);
+            """
+
+            cursor.execute(sql_command, [user_id, game_id, flow, conciseness, clarity, relevance])
+            conn.commit()
+
+            print(f"Score added for user {user_id} in game {game_id}")
+
+        except psycopg2.Error as e:
+            conn.rollback()
+            print(f"Error: {e}")
+
+        finally:
+            cursor.close()
+            conn.close()
+
 # =================== threads and messaging stuff ====================================================================
 
 # untested
