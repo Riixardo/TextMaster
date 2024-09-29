@@ -220,19 +220,32 @@ def reset_user_daily_completion():
 def create_lobby(room, creator_id, game_mode, difficulty, max_players):
     try:
         conn = psycopg2.connect(db_url)
-
-        sql_commands1 = "INSERT INTO lobby VALUES (%s, %s, %s, %s, %s, %s);"
-        sql_commands2 = "INSERT INTO lobby_players VALUES (%s, %s);"
-
         cursor = conn.cursor()
+
+        sql_commands1 = """
+            INSERT INTO lobby (lobby_id, creator_id, max_players, num_players, difficulty, game_mode)
+            VALUES (%s, %s, %s, %s, %s, %s);
+        """
+        sql_commands2 = """
+            INSERT INTO lobby_players (lobby_id, user_id)
+            VALUES (%s, %s);
+        """
+
         cursor.execute(sql_commands1, [room, creator_id, max_players, 0, difficulty, game_mode])
         cursor.execute(sql_commands2, [room, creator_id])
         conn.commit()
-        cursor.close()
-        conn.close()
+
+        # Debugging statements
+        print(f"Lobby created with ID: {room}")
+        print(f"Lobby players inserted: {creator_id}")
 
     except psycopg2.Error as e:
+        conn.rollback()
         print(f"Error: {e}")
+
+    finally:
+        cursor.close()
+        conn.close()
 
 
 def join_lobby(room, user_id):
@@ -262,13 +275,12 @@ def join_lobby(room, user_id):
 
 def leave_lobby(room, user_id):
     try:
-        print("PWOAKDPOAKWDPOKWD")
         conn = psycopg2.connect(db_url)
 
         sql_commands1 = "DELETE FROM lobby_players WHERE lobby_id = %s AND user_id = %s;"
         sql_commands2 = "SELECT * FROM lobby WHERE lobby_id = %s;"
-        sql_commands3 = "DELETE * FROM lobby_players WHERE lobby_id = %s;"
-        sql_commands4 = "DELETE * FROM lobby WHERE lobby_id = %s;"
+        sql_commands3 = "DELETE FROM lobby_players WHERE lobby_id = %s;"
+        sql_commands4 = "DELETE FROM lobby WHERE lobby_id = %s;"
 
         cursor = conn.cursor(cursor_factory=DictCursor)
         cursor.execute(sql_commands1, [room, user_id])
@@ -313,6 +325,85 @@ def view_lobby(room):
     except psycopg2.Error as e:
         print(f"Error: {e}")
 
+    def add_game_score(user_id, game_id, message_id, flow, conciseness, clarity, relevance):
+        try:
+            conn = psycopg2.connect(db_url)
+            cursor = conn.cursor()
+
+            sql_command = """
+                INSERT INTO game_scores (user_id, game_id, message_id, flow, conciseness, clarity, relevance)
+                VALUES (%s, %s, %s, %s, %s, %s, %s);
+            """
+
+            cursor.execute(sql_command, [user_id, game_id, flow, conciseness, clarity, relevance])
+            conn.commit()
+
+            print(f"Score added for user {user_id} in game {game_id}")
+
+        except psycopg2.Error as e:
+            conn.rollback()
+            print(f"Error: {e}")
+
+        finally:
+            cursor.close()
+            conn.close()
+
+
+    """
+    [
+    {
+        "message_id": 101,
+        "flow": 8,
+        "conciseness": 7,
+        "clarity": 9,
+        "relevance": 10
+    },
+    {
+        "message_id": 102,
+        "flow": 6,
+        "conciseness": 8,
+        "clarity": 7,
+        "relevance": 9
+    },
+    {
+        "message_id": 103,
+        "flow": 9,
+        "conciseness": 6,
+        "clarity": 8,
+        "relevance": 7
+    }
+    ]
+    """
+    def get_user_game_scores(user_id, game_id):
+        try:
+            conn = psycopg2.connect(db_url)
+            cursor = conn.cursor()
+
+            sql_command = """
+                SELECT message_id, flow, conciseness, clarity, relevance
+                FROM game_scores
+                WHERE user_id = %s AND game_id = %s;
+            """
+
+            cursor.execute(sql_command, [user_id, game_id])
+            scores = cursor.fetchall()
+
+            # Get column names
+            colnames = [desc[0] for desc in cursor.description]
+
+            # Convert the results to a list of dictionaries
+            scores_list = [dict(zip(colnames, score)) for score in scores]
+
+            return scores_list
+
+        except psycopg2.Error as e:
+            print(f"Error: {e}")
+            return []
+
+        finally:
+            cursor.close()
+            conn.close()
+
 # =================== threads and messaging stuff ====================================================================
 
 # untested
@@ -324,7 +415,7 @@ def create_thread(thread_id, thread_name):
 
         cursor = conn.cursor()
         cursor.execute(sql_commands1, [thread_id, thread_name])
-
+        conn.commit()
 
         cursor.close()
         conn.close()
@@ -355,7 +446,7 @@ def retrieve_messages(thread_id):
         conn = psycopg2.connect(db_url)
         cursor = conn.cursor()
 
-        sql_command = "SELECT * FROM message WHERE thread_id = %s ORDER BY timestamp;"
+        sql_command = "SELECT * FROM message WHERE thread_id = %s ORDER BY created_at;"
         cursor.execute(sql_command, [thread_id])
         messages = cursor.fetchall()
 
