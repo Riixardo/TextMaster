@@ -81,6 +81,31 @@ def create_user_leaderboard(user_id, elo):
         print(f"Error: {e}")
 
 # untested
+def get_elo(user_id):
+    try:
+        conn = psycopg2.connect(db_url)
+        cursor = conn.cursor() 
+
+        # Get the ELO of the specified user
+        cursor.execute("SELECT elo FROM leaderboard WHERE user_id = %s;", [user_id])
+        user_elo = cursor.fetchone()
+
+        if not user_elo:
+            print(f"User {user_id} not found in the leaderboard.")
+            return None
+
+        user_elo = user_elo[0]
+
+        cursor.close()
+        conn.close()
+
+        return user_elo
+
+    except psycopg2.Error as e:
+        print(f"Error: {e}")
+        return None
+
+# untested
 def get_global_rank(user_id):
     try:
         conn = psycopg2.connect(db_url)
