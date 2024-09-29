@@ -5,7 +5,6 @@ import Image from 'next/image';
 import robotIcon from '../public/Profile-Picture-AI 1.png';
 import { useRouter } from 'next/router';
 import axios from 'axios';
-import axios from 'axios';
 
 export default function Messaging() {
   const [messages, setMessages] = useState([]);
@@ -41,7 +40,7 @@ export default function Messaging() {
         content: inputValue
       });
 
-      console.log('AI response received:', response.data);
+      console.log('the message id is: ', response.message_id);
 
       // Pass the updated messages to receiveMessage
       await receiveMessage(updatedMessages);

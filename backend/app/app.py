@@ -114,8 +114,14 @@ def ai_response_prompt():
     ])
     return jsonify({"status": "success", "content": response.choices[0].message.content.strip()})
 
-
+@app.route('/ai_response', methods=['POST'])
 def grade_user_responses(previous_conversation, prompt):
+    data = request.json
+    previous_conversation = data.get("previous_conversation")
+    prompt = data.get("prompt")
+    thread_id = data.get("thread_id")
+
+
     prev_convo = ""
     is_AI = True
     for convo in previous_conversation:
@@ -144,7 +150,6 @@ def grade_user_responses(previous_conversation, prompt):
             for small_part in line.split(","):
                 smaller_part = small_part.split(":")
                 grades[smaller_part[0]] = int(smaller_part[1])
-    
     return grades
 
 
@@ -164,7 +169,6 @@ def send_message():
         return jsonify({"error": "Failed to generate message_id"}), 500
 
     # Call the send_message function
-    print("what's up")
     try:
         db_functions.send_message(message_id, user_id, thread_id, content)
         return jsonify({"status": "success", "message_id": message_id})
