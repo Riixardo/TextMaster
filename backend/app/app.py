@@ -116,13 +116,14 @@ def ai_response_prompt():
     ])
     return jsonify({"status": "success", "content": response.choices[0].message.content.strip()})
 
-@app.route('/ai_response', methods=['POST'])
-def grade_user_responses(previous_conversation, prompt):
+@app.route('/ai_grade', methods=['POST'])
+def grade_user_responses():
     data = request.json
     previous_conversation = data.get("previous_conversation")
     prompt = data.get("prompt")
-    thread_id = data.get("thread_id")
-
+    game_id = data.get("game_id")
+    message_id = data.get("message_id")
+    user_id = data.get("user_id")
 
     prev_convo = ""
     is_AI = True
@@ -152,6 +153,7 @@ def grade_user_responses(previous_conversation, prompt):
             for small_part in line.split(","):
                 smaller_part = small_part.split(":")
                 grades[smaller_part[0]] = int(smaller_part[1])
+    
     return grades
 
 
@@ -330,25 +332,14 @@ GameLeaderBoards = {}
 
 class GameInfo:
     def get_leaderboard(self, match_id):
+        player_list = db_functions.view_lobby(match_id)
         if match_id not in GameLeaderBoards:
             GameLeaderBoards[match_id] = {}
-        
-        player_list = db_functions.view_lobby(match_id)
-        
-        # Add new players to the leaderboard
-        for player in player_list:
-            if player not in GameLeaderBoards[match_id]:
+            for player in player_list:
                 GameLeaderBoards[match_id][player] = 0
-        
-        # Remove players who are no longer in the lobby
-        current_players = set(player_list)
-        leaderboard_players = set(GameLeaderBoards[match_id].keys())
-        players_to_remove = leaderboard_players - current_players
-        
-        for player in players_to_remove:
-            del GameLeaderBoards[match_id][player]
-        
-        return self._helper(GameLeaderBoards[match_id])
+            return self._helper(GameLeaderBoards[match_id])
+        else:
+            return self._helper(GameLeaderBoards[match_id])
         
     def update_score(self,match_id, new_scores):
         players = db_functions.view_lobby(match_id)
@@ -368,6 +359,6 @@ class GameInfo:
 
 
 if __name__ == '__main__':
-    socketio.run(app, port=5000, debug=True)
+   socketio.run(app, port=5000, debug=True)
     # g = GameInfo()
     # print(g.get_leaderboard('chinatown'))

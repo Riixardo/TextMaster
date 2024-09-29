@@ -58,8 +58,6 @@ export default function Messaging() {
         prompt: "any prompt is fine",
         thread_id: 1020
       });
-      
-      console.log(updatedMessages);
 
       // Update the state with the new AI message
       setMessages(prevMessages => [...prevMessages, { text: response.data.content, sender: 'AI' }]);
@@ -132,7 +130,6 @@ useEffect(() => {
     try {
       const data = await get_leaderboard(matchId);
       setLeaderboard(data);
-      console.log('leaderboard:', data);
     } catch (error) {
       console.error('Error fetching leaderboard:', error);
     } finally {
