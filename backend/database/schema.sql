@@ -14,6 +14,7 @@ DROP TABLE IF EXISTS lobby_players CASCADE;
 DROP TABLE IF EXISTS games CASCADE;
 DROP TABLE IF EXISTS player_game_stats CASCADE;
 DROP TABLE IF EXISTS leaderboard CASCADE;
+DROP TABLE IF EXISTS game_scores CASCADE;
 
 DROP TABLE IF EXISTS missions CASCADE;
 DROP TABLE IF EXISTS daily_missions CASCADE;
@@ -107,7 +108,7 @@ CREATE TABLE player_game_stats (
     elo_difference INT NOT NULL,
     accuracy FLOAT NOT NULL,
     highest_combo INT NOT NULL,
-    FOREIGN KEY (game_id) REFERENCES multiplayer_games(game_id),
+    FOREIGN KEY (game_id) REFERENCES games(game_id),
     FOREIGN KEY (user_id) REFERENCES users(user_id)
 );
 
@@ -118,6 +119,18 @@ CREATE TABLE leaderboard (
     elo INT NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users(user_id)
 );
+
+CREATE TABLE game_scores (
+    user_id TEXT NOT NULL,
+    game_id INT NOT NULL,
+    flow: INT NOT NULL,
+    conciseness: INT NOT NULL,
+    clarity: INT NOT NULL,
+    relevance: INT NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES user(user_id),
+    FOREIGN KEY (game_id) REFERENCES games(game_id),
+    PRIMARY KEY(user_id, game_id)
+)
 
 -- Store all the possible missions
 CREATE TABLE missions (
