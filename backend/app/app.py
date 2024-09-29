@@ -173,6 +173,14 @@ def handle_create_user_leaderboard(user_id, elo):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route('/get_elo', methods=['POST'])
+def handle_get_elo(user_id):
+    try:
+        db_functions.get_elok(user_id)
+        return jsonify({"message": "Got elo successfully"}), 201
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 @app.route('/get_global_rank', methods=['POST'])
 def handle_get_global_rank(user_id):
     try:
