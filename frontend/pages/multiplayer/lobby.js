@@ -1,9 +1,9 @@
 import React from "react";
 import { useState, useEffect, useRef } from "react";
 import Sidebar from "@/components/side_bar";
-import profileCard from "@/components/profile_card";
+import ProfileCard from "@/components/profile_card";
 
-const lobby = () => {
+const Lobby = () => {
 
     const [selectedButton, setSelectedButton] = useState(null);
     const headingRef = useRef(null);
@@ -23,7 +23,11 @@ const lobby = () => {
         { username: "User1", profilePic: "https://via.placeholder.com/40" },
         { username: "User2", profilePic: "https://via.placeholder.com/40" },
         { username: "User3", profilePic: "https://via.placeholder.com/40" },
-        { username: "User4", profilePic: "https://via.placeholder.com/40" }
+        { username: "User4", profilePic: "https://via.placeholder.com/40" },
+        { username: "User5", profilePic: "https://via.placeholder.com/40" },
+        { username: "User6", profilePic: "https://via.placeholder.com/40" },
+        { username: "User7", profilePic: "https://via.placeholder.com/40" },
+        { username: "User8", profilePic: "https://via.placeholder.com/40" }
     ];
 
 
@@ -35,27 +39,29 @@ const lobby = () => {
                 <div style={{overflowY: 'scroll', height:"400px"}}>
                     <div style={{display: 'flex', flexDirection: 'row', paddingTop:'40px', gap:'100px'}}>
                         <div style={{paddingRight:'20px'}}>
-                            {profileData.map((data, index) => (
-                            <profileCard
-                                key={index}
-                                username={data.username}
-                                profilePic={data.profilePic}
-                            />
-                            ))} 
-                        </div>
-                        <div>
-                            {profileData.map((data, index) => (
-                            <profileCard
-                                key={index}
-                                username={data.username}
-                                profilePic={data.profilePic}
-                            />
-                            ))} 
+                            <div style={styles.gridContainer}>
+                                {profileData.map((profile, index) => (
+                                <ProfileCard
+                                    key={index}
+                                    username={profile.username}
+                                    profilePic={profile.profilePic}
+                                />
+                                ))} 
+                            </div>
                         </div>
                     </div>    
                 </div>     
             </div>    
         </div>
     );
-}
-export default lobby;
+};
+
+const styles = {
+    gridContainer: {
+        display: 'grid',
+        gridTemplateColumns: 'repeat(2, 1fr)', // Two columns
+        gap: '20px', // Gap between grid items
+    },
+};
+
+export default Lobby;

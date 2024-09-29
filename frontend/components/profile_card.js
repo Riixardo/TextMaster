@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function profileCard({ username, profilePic }) {
+export default function ProfileCard({ username, profilePic }) {
     return (
         <div className="profile-card text-black" style={profileStyles.card}>
             <img src={profilePic} alt={`${username}'s profile`} style={profileStyles.profilePic} />
