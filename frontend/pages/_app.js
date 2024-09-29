@@ -41,6 +41,10 @@ export default function App({ Component, pageProps }) {
       setPlayers(data['players'])
     });
 
+    socket.on('room_started', (data) => {
+      router.push("/messaging?mID=" + data["room"]);
+    });
+
     socket.on('error', (data) => {
       console.log(data);
     });
@@ -66,6 +70,10 @@ export default function App({ Component, pageProps }) {
     socketInstance.emit('leave_room', { room, user, user_id });
   };
 
+  const startRoom = async (room) => {
+    socketInstance.emit('start_room', { room });
+  }
+
   return (
     <Component
       {...pageProps}
@@ -73,6 +81,7 @@ export default function App({ Component, pageProps }) {
       createRoom={createRoom}
       joinRoom={joinRoom}
       leaveRoom={leaveRoom}
+      startRoom={startRoom}
       players={players}
     />
   );
