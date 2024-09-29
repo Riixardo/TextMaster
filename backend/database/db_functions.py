@@ -2,10 +2,30 @@ import psycopg2
 from psycopg2.extras import DictCursor
 import os
 from dotenv import load_dotenv
+from datetime import datetime
 
 load_dotenv()
 
 db_url = os.getenv("DB_URL")
+
+def create_user(user_id, games_played, time_played, games_won, games_lost, global_ranking, gems, coins):
+    try:
+        conn = psycopg2.connect(db_url)
+        cursor = conn.cursor()
+
+        sql_command = """
+        INSERT INTO user_stats (user_id, games_played, time_played, games_won, games_lost, global_ranking, gems, coins)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s);
+        """
+
+        cursor.execute(sql_command, [user_id, games_played, time_played, games_won, games_lost, global_ranking, gems, coins])
+
+        conn.commit()  # Commit the transaction
+        cursor.close()
+        conn.close()
+
+    except psycopg2.Error as e:
+        print(f"Error: {e}")
 
 def create_lobby(room, creator_id, game_mode, difficulty, max_players):
     try:
@@ -101,3 +121,39 @@ def view_lobby(room):
 
     except psycopg2.Error as e:
         print(f"Error: {e}")
+
+
+def create_thread(thread_id, thread_name):
+    try:
+        conn = psycopg2.connect(db_url)
+
+        sql_commands1 = "INSERT INTO thread VALUES (%s, %s);"
+
+        cursor = conn.cursor()
+        cursor.execute(sql_commands1, [thread_id, thread_name])
+
+
+        cursor.close()
+        conn.close()
+
+    except psycopg2.Error as e:
+        print(f"Error: {e}")
+    
+
+def send_message(message_id, user_id, thread_id, content):
+    try:
+        conn = psycopg2.connect(db_url)
+
+        sql_commands1 = "INSERT INTO message VALUES (%s, %s, %s, %s, %s);"
+
+        cursor = conn.cursor()
+        cursor.execute(sql_commands1, [message_id, user_id, thread_id, content, datetime.now()])
+
+
+        cursor.close()
+        conn.close()
+
+    except psycopg2.Error as e:
+        print(f"Error: {e}")
+
+

@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify
 from flask_socketio import SocketIO, join_room, emit, leave_room
 from flask_cors import CORS
 import hashlib
-import db_functions
+import backend.database.db_functions as db_functions
 from openai import OpenAI
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -21,10 +21,11 @@ client = OpenAI(api_key=OPENAI_API_KEY)
 
 rooms = {}
 
+
 difficulty = {
-    "Hard": "The topic should be serious, semi formal, a little longer than the avgerage text message. Topic should not need any extensive previous background.",
-    "Medium": "Topic that are a little more personal, opinionated, and a little less casual in topic. Also, use topics that do not require long responses.Topic should not need any extensive previous background.",
-    "Easy": "topics that only really need one sentence per response from the user, extremely casual in topic and tone. Topic needs to be not serious. Topic should not need any extensive previous background."
+    "master": "The topic should be serious, semi formal, a little longer than the avgerage text message. Topic should not need any extensive previous background.",
+    "seasoned": "Topic that are a little more personal, opinionated, and a little less casual in topic. Also, use topics that do not require long responses.Topic should not need any extensive previous background.",
+    "novice": "topics that only really need one sentence per response from the user, extremely casual in topic and tone. Topic needs to be not serious. Topic should not need any extensive previous background."
 }
 
 def hash_string(string):
