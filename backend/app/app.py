@@ -316,7 +316,7 @@ def get_leaderboard():
 
     try:
         game_info = GameInfo()
-        res = game_info.get_leaderboard(match_id)
+        res = game_info.get_scoreboard(match_id)
 
         return jsonify(res)
     except Exception as e:
@@ -388,4 +388,7 @@ class GameInfo:
 if __name__ == '__main__':
    socketio.run(app, port=5000, debug=True)
     # g = GameInfo()
-    # print(g.get_leaderboard('chinatown'))
+    # print(g.get_scoreboard('chinatown'))
+
+    # print(g.get_scoreboard('chinatown'))
+    # print(g.get_scoreboard('chinatown'))
