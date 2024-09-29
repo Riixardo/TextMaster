@@ -23,6 +23,8 @@ def create_user(user_id, username, email, password, profile_pic):
         sql_command = """
         INSERT INTO users (user_id, username, email, password, profile_pic)
         VALUES (%s, %s, %s, %s, %s);
+        INSERT INTO users (user_id, username, email, password, profile_pic)
+        VALUES (%s, %s, %s, %s, %s);
         """
 
         cursor.execute(sql_command, [user_id, username, email, password, profile_pic])
@@ -30,9 +32,11 @@ def create_user(user_id, username, email, password, profile_pic):
         conn.commit()  # Commit the transaction
         cursor.close()
         conn.close()
+        return {"status": -1}
 
     except psycopg2.Error as e:
         print(f"Error: {e}")
+        return {"status": -1}
 
 #untested
 def create_user_stats(user_id, games_played, time_played, games_won, games_lost, global_ranking, gems, coins):

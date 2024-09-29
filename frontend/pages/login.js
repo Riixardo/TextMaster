@@ -1,6 +1,11 @@
 import React, { useState } from 'react';
+import { useRouter } from 'next/router';
+import axios from 'axios';
 
 export default function Login() {
+
+  const router = useRouter();
+
   const [formData, setFormData] = useState({
     username: '',
     password: ''
@@ -13,7 +18,7 @@ export default function Login() {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const { username, password } = formData;
 
@@ -23,8 +28,21 @@ export default function Login() {
       return;
     }
 
-    // Handle form submission logic
-    alert('Form submitted successfully!');
+    const response = await axios.post('http://127.0.0.1:5000/login', {
+      username: formData.username,
+      email: formData.email,
+      password: formData.password
+    });
+
+    if (response.data.status == 0) {
+      sessionStorage.setItem("user_id", response.data.user_id);
+      sessionStorage.setItem("username", response.data.username);
+      router.push("/home");
+    }
+    else {
+      alert('YOU FUCKING SUCK! (backend couldn"t put u in pal)');
+    }
+
   };
 
   return (
