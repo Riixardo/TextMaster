@@ -2,10 +2,7 @@ import Sidebar from '../components/side_bar';
 import Scoreboard from '../components/scoreboard';
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image'; 
-
-// Import the icon for received messages
-import robotIcon from '../public/Profile-Picture-AI 1.png'; // Update path if needed
-// import sendIcon from '../public/send-icon.png'; // Make sure to import the send icon
+import robotIcon from '../public/Profile-Picture-AI 1.png';
 
 
 export default function Messaging() {
