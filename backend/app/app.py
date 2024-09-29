@@ -2,12 +2,11 @@ from flask import Flask, request, jsonify
 from flask_socketio import SocketIO, join_room, emit, leave_room
 from flask_cors import CORS
 import hashlib
-import backend.app.db_functions as db_functions
+import db_functions as db_functions
 from openai import OpenAI
 import os
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-import os
 from dotenv import load_dotenv
 
 
@@ -34,6 +33,8 @@ def hash_string(string):
     # Convert the hash to a hexadecimal string
     hash_hex = hash_object.hexdigest()
     return hash_hex
+
+# --------------- Sockets ---------------
 
 @socketio.on('create_room')
 def handle_create_room(data):
@@ -139,7 +140,22 @@ def grade_user_responses(previous_conversation, prompt):
     
     return grades
 
-# --------------- Database Functions ---------------
+# --------------- SignUp / Login Functions ---------------
+
+@app.route('/signup', methods=['POST'])
+def signup():
+    data = request.json
+    username = data.get('username')
+    email = data.get('email')
+    password = data.get('password')
+    return jsonify(db_functions.create_user(username, email, password))
+
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.json
+    username = data.get('username')
+    password = data.get('password')
+    return jsonify(db_functions.login_user(username, password))
 
 @app.route('/create_user_stats', methods=['POST'])
 def handle_create_user_stats(user_id, games_played, time_played, games_won, games_lost, global_ranking, gems, coins):

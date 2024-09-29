@@ -49,6 +49,7 @@ CREATE TABLE users (
     user_id TEXT PRIMARY KEY,
     username TEXT NOT NULL,
     email TEXT NOT NULL,
+    password TEXT NOT NULL,
     profile_pic TEXT NOT NULL
 );
 

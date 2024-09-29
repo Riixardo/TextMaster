@@ -29,7 +29,7 @@ const Home = () => {
                 {/* New Header Section */}
                 <div className="w-full flex flex-col items-center mb-6" style={{ backgroundColor: '#f0f0f0', padding: '1rem', margin: '0' }}>
                     <h2 className="font-bold text-2xl mb-2" style={{ color: 'black' }}>
-                        FrankIsDank123 <span className="text-sm">Level 32</span>
+                        {sessionStorage.getItem("username")} <span className="text-sm">Level 32</span>
                     </h2>
                     <div className="flex space-x-8 mt-2" style={{ color: 'black' }}>
                         <p>win rate: 56%</p>

@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
+import { useRouter } from 'next/router';
+import axios from 'axios';
 
 export default function SignUp() {
+
+  const router = useRouter();
+
   const [formData, setFormData] = useState({
-    fullName: '',
     email: '',
     username: '',
     password: '',
@@ -16,12 +20,12 @@ export default function SignUp() {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const { fullName, email, username, password, confirmPassword } = formData;
+    const { email, username, password, confirmPassword } = formData;
 
     // Check if all fields are filled
-    if (!fullName || !email || !username || !password || !confirmPassword) {
+    if (!email || !username || !password || !confirmPassword) {
       alert('Please fill in all fields.');
       return;
     }
@@ -37,9 +41,20 @@ export default function SignUp() {
       return;
     }
 
-    // Handle form submission logic
-    alert('Form submitted successfully!');
+    const response = await axios.post('http://127.0.0.1:5000/signup', {
+      username: formData.username,
+      email: formData.email,
+      password: formData.password
+    });
 
+    if (response.data.status == 0) {
+      sessionStorage.setItem("user_id", response.data.user_id);
+      sessionStorage.setItem("username", response.data.username);
+      router.push("/home");
+    }
+    else {
+      alert('YOU FUCKING SUCK! (backend couldn"t put u in pal)');
+    }
 
   };
 
@@ -50,16 +65,6 @@ export default function SignUp() {
       </div>
       <h1>Sign up to get started</h1>
       <form onSubmit={handleSubmit}>
-        <label>
-          Full Name
-          <input
-            type="text"
-            name="fullName"
-            placeholder="Name"
-            value={formData.fullName}
-            onChange={handleChange}
-          />
-        </label>
         <label>
           Email
           <input

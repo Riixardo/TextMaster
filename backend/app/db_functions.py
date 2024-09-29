@@ -15,24 +15,52 @@ daily_missions = [(1, 'games', 3), (2, 'combo', 10), (3, 'win', 1)]
 # =================== user stats stuff ====================================================================
 
 # untested
-def create_user(user_id, games_played, time_played, games_won, games_lost, global_ranking, gems, coins):
+def create_user(username, email, password):
+    randomStringId = username + "lovesslaves"
     try:
         conn = psycopg2.connect(db_url)
         cursor = conn.cursor()
 
         sql_command = """
-        INSERT INTO user_stats (user_id, games_played, time_played, games_won, games_lost, global_ranking, gems, coins)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s);
+        INSERT INTO users (user_id, username, email, password, profile_pic)
+        VALUES (%s, %s, %s, %s, %s);
         """
 
-        cursor.execute(sql_command, [user_id, games_played, time_played, games_won, games_lost, global_ranking, gems, coins])
-
-        conn.commit()  # Commit the transaction
+        cursor.execute(sql_command, [randomStringId, username, email, password, "LOL"])
+        conn.commit()  
         cursor.close()
         conn.close()
+        return {"status": 0, "user_id": randomStringId, "username": username}
 
     except psycopg2.Error as e:
         print(f"Error: {e}")
+        return {"status": -1}
+    
+#untested
+def login_user(username, password):
+    try:
+        conn = psycopg2.connect(db_url)
+        cursor = conn.cursor()
+
+        sql_command = """
+        SELECT * FROM users WHERE username = %s AND password = %s;
+        """
+
+        cursor.execute(sql_command, [username, password])
+        result = cursor.fetchone()
+
+        if result != None:
+            cursor.close()
+            conn.close()
+            return {"status": 0, "user_id": result[0], "username": result[1]}
+
+        cursor.close()
+        conn.close()
+        return {"status": -1}
+
+    except psycopg2.Error as e:
+        print(f"Error: {e}")
+        return {"status": -1}
 
 #untested
 def create_user_stats(user_id, games_played, time_played, games_won, games_lost, global_ranking, gems, coins):
