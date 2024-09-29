@@ -318,7 +318,7 @@ def get_leaderboard():
 
     try:
         game_info = GameInfo()
-        res = game_info.get_leaderboard(match_id)
+        res = game_info.get_scoreboard(match_id)
         print('Leaderboard data:', res)
 
         return jsonify(res)
@@ -339,15 +339,22 @@ def ge_lobbies():
 GameLeaderBoards = {}
 
 class GameInfo:
-    def get_leaderboard(self, match_id):
+    def get_scoreboard(self, match_id):
         player_list = db_functions.view_lobby(match_id)
         if match_id not in GameLeaderBoards:
             GameLeaderBoards[match_id] = {}
-            for player in player_list:
+        
+        # Remove players who are not in player_list
+        for player in list(GameLeaderBoards[match_id].keys()):
+            if player not in player_list:
+                del GameLeaderBoards[match_id][player]
+        
+        # Add new players to the leaderboard with a score of 0
+        for player in player_list:
+            if player not in GameLeaderBoards[match_id]:
                 GameLeaderBoards[match_id][player] = 0
-            return self._helper(GameLeaderBoards[match_id])
-        else:
-            return self._helper(GameLeaderBoards[match_id])
+        
+        return self._helper(GameLeaderBoards[match_id])
         
     def update_score(self,match_id, new_scores):
         players = db_functions.view_lobby(match_id)
