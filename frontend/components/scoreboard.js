@@ -1,10 +1,16 @@
 import React from "react";
 import ProgressBar from "./progress_bar";
 
-export default function Scoreboard({ user_id, leaderboard }) {
+export default function Scoreboard({ user_id, leaderboard, userScores }) {
 
-  console.log("scoreboard:", leaderboard);
+  // console.log("scoreboard:", leaderboard);
+  console.log("userScores:", userScores);
 
+  // flow, conciseness, clarity, relevance
+  const flow = userScores ? `${userScores[0]}%` : "0%";
+  const conciseness = userScores ? `${userScores[1]}%` : "0%";
+  const clarity = userScores ? `${userScores[2]}%` : "0%";
+  const relevance = userScores ? `${userScores[3]}%` : "0%";
   
   return (
     // <div>a</div>
@@ -27,9 +33,10 @@ export default function Scoreboard({ user_id, leaderboard }) {
 
       {/* Progress Bars */}
       <div className="mt-6 space-y-1">
-        <ProgressBar width="1%" name="Correctness" />
-        <ProgressBar width="50%" name="Grammar" />
-        <ProgressBar width="100%" name="Flow" />
+        <ProgressBar width={relevance} name="relevance" />
+        <ProgressBar width={clarity} name="clarity" />
+        <ProgressBar width={flow} name="Flow" />
+        <ProgressBar width={conciseness} name="Conciseness" />
       </div>
     </div>
   );
