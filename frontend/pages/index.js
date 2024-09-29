@@ -15,13 +15,16 @@ export default function Index() {
 
     return (
         <div style={styles.container}>
-            <button style={styles.loginButton} onClick={handleLoginClick}>Login</button>
-            <div style={styles.border}></div>
-            <p style={styles.text1}>Accelerate your learning with Textmaster</p>
-            <p style={styles.text2}>Learn languages faster, score higher, and compete with friends globally</p>
-            <div style={styles.buttonContainer}>
-                {/* <button style={styles.signUpButton}>See Features</button> */}
-                <button style={styles.signUpButton} onClick={handleSignupClick}>Sign Up</button>
+            <img src="/textmasterlogo.png" alt="Textmaster Logo" style={styles.logo} className='w-20 h-20'/>
+            <div style={styles.content}>
+                <button style={styles.loginButton} onClick={handleLoginClick}>Login</button>
+                <div style={styles.border}></div>
+                <p style={styles.text1}>Accelerate your learning with Textmaster</p>
+                <p style={styles.text2}>Learn languages faster, score higher, and compete with friends globally</p>
+                <div style={styles.buttonContainer}>
+                    {/* <button style={styles.signUpButton}>See Features</button> */}
+                    <button style={styles.signUpButton} onClick={handleSignupClick}>Sign Up</button>
+                </div>
             </div>
         </div>
     );
@@ -29,9 +32,26 @@ export default function Index() {
 
 const styles = {
   container: {
-      position: 'relative',
-      height: '100vh', // Full viewport height
-      width: '100vw',  // Full viewport width
+    position: 'relative',
+    height: '100vh', // Full viewport height
+    width: '100vw',  // Full viewport width
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#FFFFFF',
+  },
+  logo: {
+      position: 'absolute',
+      top: '10px',
+      left: '10px',
+  },
+  content: {
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginTop: '50px', // Adjust as needed to avoid overlap with the logo
   },
   loginButton: {
       position: 'absolute',
@@ -47,7 +67,7 @@ const styles = {
   },
   border: {
     position: 'absolute',
-    top: '45px', // Adjust this value to position the border below the button
+    top: '75px', // Adjust this value to position the border below the button
     right: '30px',
     width: '95vw', // Match the width of the button
     height: '2px', // Height of the border
