@@ -3,11 +3,39 @@ import Scoreboard from '../components/scoreboard';
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image'; 
 import robotIcon from '../public/Profile-Picture-AI 1.png';
+import { useRouter } from 'next/router';
 
 
 export default function Messaging() {
   const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState('');
+  const [matchId, setMatchId] = useState(null); // Initialize match_id state
+  const [leaderboard, setLeaderboard] = useState([]); // Initialize leaderboard state
+
+  const router = useRouter();
+
+  const handleSendMessage = () => {
+    if (inputValue.trim() === '') return;
+    setMessages([...messages, { text: inputValue, sender: 'You' }]);
+    setInputValue('');
+    console.log(messages);
+  };
+
+  const receiveMessage = (message) => {
+    setMessages([...messages, { text: message, sender: 'AI' }]);
+  };
+
+  const get_leaderboard = async (matchId) => {
+    try {
+      const response = await fetch(`http://localhost:5000/api/get_leaderboard?matchId=${matchId}`);
+      const data = await response.json();
+      setLeaderboard(data);
+      console.log(data);
+    } catch (error) {
+      console.error('Error fetching leaderboard:', error);
+    }
+  };
+
 
   const handleKeyDown = (event) => {
     if (event.key === 'Enter') {
@@ -15,30 +43,28 @@ export default function Messaging() {
     }
   };
 
-  const handleSendMessage = () => {
-    if (inputValue.trim() === '') return;
-    setMessages([...messages, { text: inputValue, sender: 'You' }]);
-    setInputValue('');
-  };
+    useEffect(() => {
+    if (router.query.matchId) {
+      setMatchId(router.query.matchId);
+      get_leaderboard();
+    }
+  }, [router.query.matchId]);
 
-  const receiveMessage = (message) => {
-    setMessages([...messages, { text: message, sender: 'Other' }]);
-  };
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const randomMessages = [
-        'Hello!',
-        'How are you?',
-        'What are you doing?',
-        'Nice to meet you!',
-        'Goodbye!'
-      ];
-      const randomMessage = randomMessages[Math.floor(Math.random() * randomMessages.length)];
-      receiveMessage(randomMessage);
-    }, 5000);
-    return () => clearInterval(interval);
-  }, [messages]);
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     const randomMessages = [
+  //       'Hello!',
+  //       'How are you?',
+  //       'What are you doing?',
+  //       'Nice to meet you!',
+  //       'Goodbye!'
+  //     ];
+  //     const randomMessage = randomMessages[Math.floor(Math.random() * randomMessages.length)];
+  //     receiveMessage(randomMessage);
+  //   }, 5000);
+  //   return () => clearInterval(interval);
+  // }, [messages]);
 
   return (
     <div className="flex">
@@ -69,8 +95,6 @@ export default function Messaging() {
                     )}
                     
                       <p className='message-box' style={{backgroundColor: message.sender === 'You' ? '#D1F8FF' : '#F0F0F0'}}>{message.text}</p>
-                      {/* <p style={{ margin: 0 }}>{message.text}</p> */}
-                    {/* </div> */}
                   </li>
                 ))}
               </ul>
@@ -88,24 +112,6 @@ export default function Messaging() {
               className="flex-grow p-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
               style={{ height: '30px'}}
             />
-            {/* <button
-            onClick={handleSendMessage}
-            className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-transparent border-none cursor-pointer"
-            style={{ height: '30px', width: '30px' }}
-            >
-              <Image
-                src={sendIcon}
-                alt="Send Icon"
-                width={30}
-                height={30}
-              />
-            </button> */}
-            {/* <button
-              onClick={handleSendMessage}
-              className="ml-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-            >
-              Send
-            </button> */}
           </div>
         </div>
       </div>
