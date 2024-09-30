@@ -307,9 +307,10 @@ def create_game():
 def update_score():
     data = request.json
     match_id = data['match_id']
+    userID = data['userID']
     new_scores = data['new_scores']
     game_info = GameInfo()
-    game_info.update_score(match_id, new_scores)
+    game_info.update_score(match_id, userID, new_scores)
     return jsonify({'message': 'Score updated'})
 
 @app.route('/api/get_scoreboard', methods=['POST'])
@@ -375,13 +376,11 @@ class GameInfo:
         
         return self._helper(GameLeaderBoards[match_id])
         
-    def update_score(self,match_id, new_scores):
-        players = db_functions.view_lobby(match_id)
-        for player in players:
-            GameLeaderBoards[match_id][player] = new_scores[player]
+    def update_score(self,match_id, userID, new_scores):
+        for score in new_scores.keys():
+            total += new_scores[score]
 
-    def end_game(self, match_id):
-        del GameLeaderBoards[match_id]
+        GameLeaderBoards[match_id][userID] += total
     
     def _helper(self, score_dictionary):
         res = []
