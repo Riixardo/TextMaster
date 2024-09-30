@@ -102,9 +102,6 @@ def ai_response_prompt():
     previous_conversation = data.get("previous_conversation")
     prompt = data.get("prompt")
     thread_id = data.get("thread_id")
-    print(data)
-    print("here's the data")
-    print(previous_conversation)
     prev_convo = ""
     is_AI = True
     for convo in previous_conversation:
@@ -132,6 +129,8 @@ def grade_user_responses():
     message_id = data.get("message_id")
     user_id = data.get("user_id")
 
+    print(data)
+
     prev_convo = ""
     is_AI = True
     for convo in previous_conversation:
@@ -140,17 +139,20 @@ def grade_user_responses():
         else:
             prev_convo += "the other person said: "
         is_AI = not is_AI
-        prev_convo += convo + "\n"
-    
+        prev_convo += convo["text"] + "\n"
+
+    print(prev_convo)
+
     response = client.chat.completions.create(
         model="gpt-4",
         messages=[
             {"role": "system", "content": "You are a competent grading program that has no bias. You should behave like one. Make sure you take into account how a normal human would engage in the conversation."},
-            {"role": "user", "content": f"The starting conversation topic is {prompt}. Here's the previous conversation that has been talked about so far: {prev_convo}. Focusing on the latest response from the other person, give me a grade out of 100 for the following: Flow, Conciseness, Clarity, and On Topic. Please provide the grades in the following format, don't include any puntucation except : and , : Flow: [number], Conciseness: [number], Clarity: [number], On Topic: [number]"}
+            {"role": "user", "content": f"The starting conversation topic is {prompt}. Here's the previous conversation that has been talked about so far: {prev_convo}. Focusing on the latest response from the other person, give me a grade out of 100 for the following: Flow, Conciseness, Clarity, and On Topic. Please provide the grades in the following format, don't include any puntucation except : and , : Flow: [number], Conciseness: [number], Clarity: [number], Relevance: [number]"}
         ]
     )
     
     response_text = response.choices[0].message.content.strip()
+    print(response_text)
     
     # Extract the numbers from the response
     grades = {}
@@ -158,9 +160,10 @@ def grade_user_responses():
         if ':' in line:
             for small_part in line.split(","):
                 smaller_part = small_part.split(":")
-                grades[smaller_part[0]] = int(smaller_part[1])
-    
-    return grades
+                grades[smaller_part[0].strip()] = int(smaller_part[1].strip())
+    print(grades)
+    db_functions.add_game_score(user_id, game_id, message_id, grades["Flow"], grades["Conciseness"], grades["Clarity"], grades["Relevance"])
+    return jsonify({"status": "success"} | grades)
 
 
 @app.route('/send_message', methods=['POST'])
@@ -178,7 +181,6 @@ def send_message():
     if message_id is None:
         return jsonify({"error": "Failed to generate message_id"}), 500
 
-    # Call the send_message function
     try:
         db_functions.send_message(message_id, user_id, thread_id, content)
         return jsonify({"status": "success", "message_id": message_id})

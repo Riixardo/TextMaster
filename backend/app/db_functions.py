@@ -406,28 +406,28 @@ def get_lobbies():
     except psycopg2.Error as e:
         print(f"Error: {e}")
 
-    def add_game_score(user_id, game_id, message_id, flow, conciseness, clarity, relevance):
-        try:
-            conn = psycopg2.connect(db_url)
-            cursor = conn.cursor()
+def add_game_score(user_id, game_id, message_id, flow, conciseness, clarity, relevance):
+    try:
+        conn = psycopg2.connect(db_url)
+        cursor = conn.cursor()
 
-            sql_command = """
-                INSERT INTO game_scores (user_id, game_id, message_id, flow, conciseness, clarity, relevance)
-                VALUES (%s, %s, %s, %s, %s, %s, %s);
-            """
+        sql_command = """
+            INSERT INTO game_scores (user_id, game_id, message_id, flow, conciseness, clarity, relevance)
+            VALUES (%s, %s, %s, %s, %s, %s, %s);
+        """
 
-            cursor.execute(sql_command, [user_id, game_id, 100, 100, 100, 100])
-            conn.commit()
+        cursor.execute(sql_command, [user_id, game_id, message_id, flow, conciseness, clarity, relevance])
+        conn.commit()
 
-            print(f"Score added for user {user_id} in game {game_id}")
+        print(f"Score added for user {user_id} in game {game_id}")
 
-        except psycopg2.Error as e:
-            conn.rollback()
-            print(f"Error: {e}")
+    except psycopg2.Error as e:
+        conn.rollback()
+        print(f"Error: {e}")
 
-        finally:
-            cursor.close()
-            conn.close()
+    finally:
+        cursor.close()
+        conn.close()
 
 
     """
@@ -455,35 +455,35 @@ def get_lobbies():
     }
     ]
     """
-    def get_user_game_scores(user_id, game_id):
-        try:
-            conn = psycopg2.connect(db_url)
-            cursor = conn.cursor()
+def get_user_game_scores(user_id, game_id):
+    try:
+        conn = psycopg2.connect(db_url)
+        cursor = conn.cursor()
 
-            sql_command = """
-                SELECT message_id, flow, conciseness, clarity, relevance
-                FROM game_scores
-                WHERE user_id = %s AND game_id = %s;
-            """
+        sql_command = """
+            SELECT message_id, flow, conciseness, clarity, relevance
+            FROM game_scores
+            WHERE user_id = %s AND game_id = %s;
+        """
 
-            cursor.execute(sql_command, [user_id, game_id])
-            scores = cursor.fetchall()
+        cursor.execute(sql_command, [user_id, game_id])
+        scores = cursor.fetchall()
 
-            # Get column names
-            colnames = [desc[0] for desc in cursor.description]
+        # Get column names
+        colnames = [desc[0] for desc in cursor.description]
 
-            # Convert the results to a list of dictionaries
-            scores_list = [dict(zip(colnames, score)) for score in scores]
+        # Convert the results to a list of dictionaries
+        scores_list = [dict(zip(colnames, score)) for score in scores]
 
-            return scores_list
+        return scores_list
 
-        except psycopg2.Error as e:
-            print(f"Error: {e}")
-            return []
+    except psycopg2.Error as e:
+        print(f"Error: {e}")
+        return []
 
-        finally:
-            cursor.close()
-            conn.close()
+    finally:
+        cursor.close()
+        conn.close()
 
 # =================== threads and messaging stuff ====================================================================
 

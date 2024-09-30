@@ -4,7 +4,7 @@ import ProgressBar from "./progress_bar";
 export default function Scoreboard({ user_id, leaderboard, userScores }) {
 
   // console.log("scoreboard:", leaderboard);
-  console.log("userScores:", userScores);
+  // console.log("userScores:", userScores);
 
   // flow, conciseness, clarity, relevance
   const flow = userScores ? `${userScores[0]}%` : "0%";

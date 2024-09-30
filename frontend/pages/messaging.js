@@ -37,13 +37,35 @@ export default function Messaging() {
 
     try {
       const response = await axios.post('http://127.0.0.1:5000/send_message', {
-        user_id: "test_user",
+        user_id: userId,
         thread_id: 1020,
         content: inputValue
       });
+      console.log(response);
 
-      console.log('the message id is: ', response.message_id);
+      console.log('the message id is: ', response.data.message_id);
+      console.log(userId);
 
+      console.log(updatedMessages);
+
+      const response2 = await axios.post('http://127.0.0.1:5000/ai_grade', {
+        previous_conversation: updatedMessages,
+        user_id: userId,
+        game_id: 1,
+        thread_id: 1020,
+        message_id: response.data.message_id
+      });
+      console.log(response2);
+      const response3 = await axios.post('http://127.0.0.1:5000/send_message', {
+        user_id: "1",
+        thread_id: 1020,
+        content: JSON.stringify(response2.data)
+      });
+      setMessages(updatedMessages => [...updatedMessages, { text: JSON.stringify(response2.data), sender: 'AI' }]);
+
+
+
+      console.log(updatedMessages);
       // Pass the updated messages to receiveMessage
       await receiveMessage(updatedMessages);
     } catch (error) {
