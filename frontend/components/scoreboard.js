@@ -13,7 +13,6 @@ export default function Scoreboard({ user_id, leaderboard, userScores }) {
   const relevance = userScores ? `${userScores[3]}%` : "0%";
   
   return (
-    // <div>a</div>
     <div className="score-board" style={{ borderRight: '2px solid #f3f3f3' }}>
       {/* Scoreboard List */}
       <div>

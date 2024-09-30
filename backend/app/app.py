@@ -265,13 +265,16 @@ def handle_reset_user_daily_completion():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
-@app.route('/create_thread', methods=['POST'])
-def handle_create_thread(thread_id, thread_name):
-    try:
-        db_functions.create_thread(thread_id, thread_name)
-        return jsonify({"message": "Created thread successfully"}), 201
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+# @app.route('/create_thread', methods=['POST'])
+# def handle_create_thread():
+#     try:
+#         data = request.json
+#         thread_name = data['thread_name']
+#         thread_id = db_functions.generate_new_thread_id()
+#         # db_functions.create_thread(thread_id, thread_name)
+#         return jsonify(thread_id), 201
+#     except Exception as e:
+#         return jsonify({"error": str(e)}), 500
     
 @app.route('/send_message', methods=['POST'])
 def handle_send_message(message_id, user_id, thread_id, content):
@@ -337,13 +340,15 @@ def ge_lobbies():
 # --------------- Thread Functions ---------------
 
 @app.route('/create_thread', methods=['POST'])
-def create_thread():
+def make_thread():
     try:
-        data = request.json
-        thread_name = data.get('thread_name')
+        thread_name = "test_thread"
         thread_id = db_functions.generate_new_thread_id()
+
         db_functions.create_thread(thread_id, thread_name)
-        return jsonify({'message': 'Thread created', 'thread_id': thread_id})    
+        
+        # return jsonify(thread_id)    
+        return jsonify({"thread_id": thread_id}), 201
     except Exception as e:
         return jsonify({'error': str(e)}), 500
   
@@ -386,9 +391,12 @@ class GameInfo:
 
 
 if __name__ == '__main__':
-   socketio.run(app, port=5000, debug=True)
+    socketio.run(app, port=5000, debug=True)
     # g = GameInfo()
     # print(g.get_scoreboard('chinatown'))
 
     # print(g.get_scoreboard('chinatown'))
     # print(g.get_scoreboard('chinatown'))
+
+    # print(db_functions.create_thread(11, 'test'))
+    # print(db_functions.generate_new_thread_id())

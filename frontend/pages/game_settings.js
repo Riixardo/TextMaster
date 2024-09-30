@@ -27,17 +27,21 @@ const gameSettings = () => {
 
     const router = useRouter();
 
-    const handleStartButton = async () => {
-        const response = await axios.post('http://127.0.0.1:5000/create_thread', {
-            thread_name: "test_thread",
-        });
-        threadId = response['thread_id'];
+const handleStartButton = async () => {
+    try {
+        const response = await axios.post('http://127.0.0.1:5000/create_thread', {});
+        const threadId = response.data.thread_id;
 
+        console.log('the thread id is: ', threadId);
         router.push({
             pathname: '/single_player',
             query: { thread_id: threadId }
         });
+    } catch (error) {
+        console.error('Error creating thread:', error);
     }
+}
+
 
     return (
         <div className="min-h-screen w-screen" style={{ display: 'flex' }}>

@@ -11,9 +11,10 @@ export default function Messaging() {
   const [messages, setMessages] = useState([]);
   const [userId, setUserId] = useState('');
   const [inputValue, setInputValue] = useState('');
+  const [thread_id, setThreadId] = useState(null);
+
   // for progress bar
   const [userScores, setUserScores] = useState(null);
-  const [thread_id, setThreadId] = useState(null);
 
   useEffect(() => {
     if (router.query.thread_id) {
@@ -77,7 +78,7 @@ export default function Messaging() {
   };
 
   // Only render the component when `userId` and `thread_id` are available
-  if (!userId || !thread_id) {
+  if (!userId) {
     return null; // Render nothing until `userId` and `thread_id` are available
   }
 
