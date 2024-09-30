@@ -69,9 +69,10 @@ def handle_leave_room(data):
     emit('room_updated', {'message': f'User left {room}', 'room': room, 'user': user, 'players': players}, room=room)
 
 @socketio.on('start_room')
-def handle_leave_room(data):
+def handle_start_room(data):
     room = data['room']
     # TODO HANDLE BACKEND GAME INITIALIZATION
+    print("STARTING ROOMOMOOMOMMMMM")
     emit('room_started', {'message': f'Game {room} has started', 'room': room}, room=room)
 
 # --------------- OpenAI Functions ---------------
@@ -335,8 +336,14 @@ def end_game():
     return jsonify({'message': 'Game ended'})
 
 @app.route('/api/get_lobbies', methods=['GET'])
-def ge_lobbies():
+def get_lobbies():
     return jsonify({"lobbies": db_functions.get_lobbies()})
+
+@app.route('/api/get_lobby', methods=['POST'])
+def get_lobby():
+    data = request.json()
+    lobby_id = data.get('lobby_id')
+    return jsonify({"lobbies": db_functions.get_lobby(lobby_id)})
 
 
 # --------------- Thread Functions ---------------

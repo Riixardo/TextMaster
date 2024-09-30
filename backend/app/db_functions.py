@@ -406,6 +406,28 @@ def get_lobbies():
     except psycopg2.Error as e:
         print(f"Error: {e}")
 
+
+def get_lobby(lobby_id):
+    try:
+        conn = psycopg2.connect(db_url)
+
+        sql_commands1 = """
+        SELECT *
+        FROM lobby 
+        WHERE lobby_id = %s;
+        """
+
+        cursor = conn.cursor()
+        cursor.execute(sql_commands1, [lobby_id])
+        result = cursor.fetchone()
+
+        cursor.close()
+        conn.close()
+        return result
+    
+    except psycopg2.Error as e:
+        print(f"Error: {e}")
+
 def add_game_score(user_id, game_id, message_id, flow, conciseness, clarity, relevance):
     try:
         conn = psycopg2.connect(db_url)
