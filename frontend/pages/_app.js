@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import io from 'socket.io-client';
+import axios from 'axios';
 
 import "@/styles/globals.css";
 
@@ -41,8 +42,20 @@ export default function App({ Component, pageProps }) {
       setPlayers(data['players'])
     });
 
-    socket.on('room_started', (data) => {
-      router.push("/messaging?mID=" + data["room"]);
+    socket.on('room_started', async (data) => {
+      console.log("NIIGGIGIGIIGG");
+      try {
+        // Make the POST request to create a thread
+        const response = await axios.post('http://127.0.0.1:5000/create_thread', {});
+        const threadId = response.data.thread_id;
+  
+        console.log('the thread id is: ', threadId);
+  
+        // Navigate to the new page with the thread_id as a query parameter
+        router.push(`/messaging?mID=${data["room"]}&threadId=${threadId}`);
+      } catch (error) {
+        console.error('Error creating thread:', error);
+      }
     });
 
     socket.on('error', (data) => {
@@ -71,6 +84,7 @@ export default function App({ Component, pageProps }) {
   };
 
   const startRoom = async (room) => {
+    console.log("PWODKAPODK")
     socketInstance.emit('start_room', { room });
   }
 
