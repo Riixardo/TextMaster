@@ -15,6 +15,7 @@ export default function Messaging() {
   const [loadingLeaderboard, setLoadingLeaderboard] = useState(false);
   const [isLoading, setLoading] = useState(true);
   const [timeLeft, setTimeLeft] = useState(300);
+  const [threadId, setThreadId] = useState(null);
   // for progress bar
   const [userScores, setUserScores] = useState(null);
 
