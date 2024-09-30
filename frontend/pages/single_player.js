@@ -12,6 +12,7 @@ export default function Messaging() {
   const [userId, setUserId] = useState('');
   const [inputValue, setInputValue] = useState('');
   const [thread_id, setThreadId] = useState(null);
+  const [timeLeft, setTimeLeft] = useState(300);
 
   // for progress bar
   const [userScores, setUserScores] = useState(null);
@@ -25,6 +26,26 @@ export default function Messaging() {
     const uID = sessionStorage.getItem('user_id');
     setUserId(uID || '');
   }, [router.query.thread_id]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTimeLeft((prevTime) => {
+        if (prevTime <= 0) {
+          clearInterval(interval);
+          return 0;
+        }
+        return prevTime - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval); // Cleanup when component unmounts
+  }, []);
+
+  const formatTime = (seconds) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
+  };
 
   const handleSendMessage = async () => {
     if (inputValue.trim() === '') {
@@ -89,7 +110,7 @@ export default function Messaging() {
         {/* <Scoreboard user_id={userId} leaderboard={[]} userScores={userScores} /> */}
         <div className="flex-grow h-screen p-6 flex flex-col" style={{ background: '#ffffff' }}>
           <h2 className="text-blue-500 text-2xl font-bold mb-4">Textmaster Messaging</h2>
-
+          {timeLeft && <div className="text-black">{formatTime(timeLeft)}</div>}
           {/* Messages Display */}
           <div className="flex-grow p-4 rounded-lg overflow-auto">
             {messages.length === 0 ? (

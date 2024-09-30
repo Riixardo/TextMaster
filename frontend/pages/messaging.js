@@ -14,6 +14,7 @@ export default function Messaging() {
   const [leaderboard, setLeaderboard] = useState([]); // Initialize leaderboard state
   const [loadingLeaderboard, setLoadingLeaderboard] = useState(false);
   const [isLoading, setLoading] = useState(true);
+  const [timeLeft, setTimeLeft] = useState(300);
   // for progress bar
   const [userScores, setUserScores] = useState(null);
 
@@ -166,6 +167,26 @@ export default function Messaging() {
     }
   }, [matchId, userId]);
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTimeLeft((prevTime) => {
+        if (prevTime <= 0) {
+          clearInterval(interval);
+          return 0;
+        }
+        return prevTime - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval); // Cleanup when component unmounts
+  }, []);
+
+  const formatTime = (seconds) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
+  };
+
 
 // Ensure matchId, userId, and leaderboard are set before rendering the main content
 if (!matchId || !userId) {
@@ -184,7 +205,7 @@ if (!matchId || !userId) {
         )}
         <div className="flex-grow h-screen p-6 flex flex-col" style={{ background: '#ffffff' }}>
           <h2 className="text-blue-500 text-2xl font-bold mb-4">Textmaster Messaging</h2>
-
+          {timeLeft && <div className="text-black">{formatTime(timeLeft)}</div>}
           {/* Messages Display */}
           <div className="flex-grow p-4 rounded-lg overflow-auto">
             {messages.length === 0 ? (
