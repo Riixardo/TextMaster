@@ -16,12 +16,22 @@ export default function Messaging() {
   const [isLoading, setLoading] = useState(true);
   const [threadId, setThreadId] = useState(null);
   // for progress bar
-  const [userScores, setUserScores] = useState(null);
+  // const [userScores, setUserScores] = useState(null);
+
+  const router = useRouter();
+
+  useEffect(() => {
+        // Extract thread_id from query parameters and set it
+        const { threadId } = router.query;
+        console.log(threadId)
+        if (threadId) {
+            setThreadId(threadId);
+        }
+    }, [router.query]);
 
   const getMessages = () => {
     return messages;
   };
-  const router = useRouter();
   
   const handleSendMessage = async () => {
     if (inputValue.trim() === '') {
@@ -37,9 +47,11 @@ export default function Messaging() {
     setInputValue('');
 
     try {
+      console.log('sending message', threadId);
       const response = await axios.post('http://127.0.0.1:5000/send_message', {
         user_id: userId,
-        thread_id: 1020,
+        // thread_id: 1020,
+        thread_id: threadId,
         content: inputValue
       });
       console.log(response);
@@ -53,17 +65,25 @@ export default function Messaging() {
         previous_conversation: updatedMessages,
         user_id: userId,
         game_id: 1,
-        thread_id: 1020,
+        thread_id: threadId,
         message_id: response.data.message_id
       });
       console.log(response2);
       const response3 = await axios.post('http://127.0.0.1:5000/send_message', {
         user_id: "1",
-        thread_id: 1020,
+        thread_id: threadId,
         content: JSON.stringify(response2.data)
       });
       setMessages(updatedMessages => [...updatedMessages, { text: JSON.stringify(response2.data), sender: 'AI' }]);
 
+      // massive problem here
+      // update scores here
+      const x = await axios.post('http://127.0.0.1:5000/api/update_score', {
+          match_id: matchId,
+          userID: userId,
+          new_scores: response2.data
+       })
+      console.log(x);
 
 
       console.log(updatedMessages);
@@ -95,7 +115,7 @@ export default function Messaging() {
       const response = await axios.post('http://127.0.0.1:5000/ai_response', {
         previous_conversation: updatedMessages,  // Use the passed messages
         prompt: "any prompt is fine",
-        thread_id: 1020
+        thread_id: threadId
       });
 
       // Update the state with the new AI message
@@ -169,7 +189,7 @@ export default function Messaging() {
 
 
 // Ensure matchId, userId, and leaderboard are set before rendering the main content
-if (!matchId || !userId) {
+if (!matchId || !userId || !threadId) {
   return <div>`Loading`...</div>; // Render a loading indicator while waiting for matchId, userId, and leaderboard
 }
 
@@ -181,7 +201,9 @@ if (!matchId || !userId) {
         {loadingLeaderboard ? (
           <p>Loading leaderboard...</p>
         ) : (
-          <Scoreboard user_id={userId} leaderboard={leaderboard} userScores={userScores}/>
+          // <Scoreboard user_id={userId} leaderboard={leaderboard} userScores={userScores}/>
+          <Scoreboard user_id={userId} leaderboard={leaderboard}/>
+
         )}
         <div className="flex-grow h-screen p-6 flex flex-col" style={{ background: '#ffffff' }}>
           <h2 className="text-blue-500 text-2xl font-bold mb-4">Textmaster Messaging</h2>

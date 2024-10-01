@@ -361,10 +361,10 @@ def view_lobby(room):
         conn = psycopg2.connect(db_url)
 
         sql_commands1 = """
-        SELECT u.username 
+        SELECT u.username
         FROM lobby AS a 
         JOIN lobby_players AS b ON a.lobby_id = b.lobby_id 
-        JOIN users AS u ON b.user_id = u.user_id 
+        JOIN users AS u ON b.user_id = u.user_id
         WHERE a.lobby_id = %s;
         """
 
@@ -378,6 +378,53 @@ def view_lobby(room):
         cursor.close()
         conn.close()
         return players
+
+    except psycopg2.Error as e:
+        print(f"Error: {e}")
+
+def view_lobbies_userIDs(room):
+    try:
+        conn = psycopg2.connect(db_url)
+
+        sql_commands1 = """
+        SELECT u.user_id
+        FROM lobby AS a 
+        JOIN lobby_players AS b ON a.lobby_id = b.lobby_id 
+        JOIN users AS u ON b.user_id = u.user_id
+        WHERE a.lobby_id = %s;
+        """
+
+        cursor = conn.cursor()
+        cursor.execute(sql_commands1, [room])
+        results = cursor.fetchall()
+        players = []
+        for row in results:
+            players.append(row[0])
+
+        cursor.close()
+        conn.close()
+        return players
+
+    except psycopg2.Error as e:
+        print(f"Error: {e}")
+
+def user_id_to_username(user_id):
+    try:
+        conn = psycopg2.connect(db_url)
+
+        sql_commands1 = """
+        SELECT username
+        FROM users
+        WHERE user_id = %s;
+        """
+
+        cursor = conn.cursor()
+        cursor.execute(sql_commands1, [user_id])
+        result = cursor.fetchone()
+
+        cursor.close()
+        conn.close()
+        return result[0]
 
     except psycopg2.Error as e:
         print(f"Error: {e}")
@@ -508,7 +555,6 @@ def get_user_game_scores(user_id, game_id):
         conn.close()
 
 # =================== threads and messaging stuff ====================================================================
-
 def generate_new_thread_id():
     try:
         conn = psycopg2.connect(db_url)
@@ -528,8 +574,10 @@ def generate_new_thread_id():
         return None
 
 # untested
-def create_thread(thread_id, thread_name):
+def create_thread(thread_info, thread_name):
     try:
+        thread_id = generate_new_thread_id()
+        thread_info.append(thread_id)
         conn = psycopg2.connect(db_url)
 
         sql_commands1 = "INSERT INTO thread VALUES (%s, %s);"

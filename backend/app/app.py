@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 
 app = Flask(__name__)
 CORS(app)  
+# CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
 socketio = SocketIO(app, cors_allowed_origins='*')  
 
 load_dotenv()
@@ -162,7 +163,7 @@ def grade_user_responses():
             for small_part in line.split(","):
                 smaller_part = small_part.split(":")
                 grades[smaller_part[0].strip()] = int(smaller_part[1].strip())
-    print(grades)
+    print("here:" , grades)
     db_functions.add_game_score(user_id, game_id, message_id, grades["Flow"], grades["Conciseness"], grades["Clarity"], grades["Relevance"])
     return jsonify({"status": "success"} | grades)
 
@@ -310,9 +311,35 @@ def update_score():
     match_id = data['match_id']
     userID = data['userID']
     new_scores = data['new_scores']
-    game_info = GameInfo()
-    game_info.update_score(match_id, userID, new_scores)
+    try:
+        game_info = GameInfo()
+        game_info.update_score(match_id, userID, new_scores)
+        response = jsonify({'message': 'Score updated successfully'})
+        response.status_code = 200
+    except Exception as e:
+        response = jsonify({'error': str(e)})
+        response.status_code = 500
     return jsonify({'message': 'Score updated'})
+# from flask import make_response
+
+# @app.route('/api/update_score', methods=['POST'])
+# def update_score():
+#     data = request.json
+#     match_id = data['match_id']
+#     userID = data['userID']
+#     new_scores = data['new_scores']
+#     game_info = GameInfo()
+#     game_info.update_score(match_id, userID, new_scores)
+#     response = make_response(jsonify({'message': 'Score updated'}))
+#     response.headers.add("Access-Control-Allow-Origin", "*")
+#     return response
+
+# @app.after_request
+# def after_request(response):
+#     response.headers.add('Access-Control-Allow-Origin', '*')
+#     response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+#     response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
+#     return response
 
 @app.route('/api/get_scoreboard', methods=['POST'])
 def get_leaderboard():
@@ -353,11 +380,10 @@ def get_lobby():
 def make_thread():
     try:
         thread_name = "test_thread"
-        thread_id = db_functions.generate_new_thread_id()
-
-        db_functions.create_thread(thread_id, thread_name)
+        thread_info = []
+        db_functions.create_thread(thread_info, thread_name)
+        thread_id = thread_info[0]
         
-        # return jsonify(thread_id)    
         return jsonify({"thread_id": thread_id}), 201
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -368,6 +394,9 @@ GameLeaderBoards = {}
 class GameInfo:
     def get_scoreboard(self, match_id):
         player_list = db_functions.view_lobby(match_id)
+        print("\n\n\n\n")
+        print(player_list)
+        
         if match_id not in GameLeaderBoards:
             GameLeaderBoards[match_id] = {}
         
@@ -384,14 +413,23 @@ class GameInfo:
         return self._helper(GameLeaderBoards[match_id])
         
     def update_score(self,match_id, userID, new_scores):
-        for score in new_scores.keys():
-            total += new_scores[score]
+        total = 0
+        print("\n\n\n\n new_scores", new_scores)
+        # for score in new_scores.keys():
+        #     # print("key: ", score)
+        #     if score != 'status':
+        #         total += new_scores[score]
+        print('asdf')
+        username = db_functions.user_id_to_username(userID)
+        GameLeaderBoards[match_id][username] += new_scores['Flow'] + new_scores['Conciseness'] + new_scores['Clarity'] + new_scores['Relevance']
+        # print("match_id", match_id)
+        # print("userID", userID)
+        print(GameLeaderBoards)
 
-        GameLeaderBoards[match_id][userID] += total
-    
     def _helper(self, score_dictionary):
         res = []
         for player in score_dictionary:
+            print(score_dictionary[player])
             res.append([player, score_dictionary[player]])
         
         res.sort(key=lambda x: x[1], reverse=True)
