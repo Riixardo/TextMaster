@@ -1,16 +1,21 @@
 import React from "react";
 import ProgressBar from "./progress_bar";
 
-export default function Scoreboard({ user_id, leaderboard, userScores }) {
+export default function Scoreboard({ user_id, leaderboard, userPercentages }) {
 
   // console.log("scoreboard:", leaderboard);
-  // console.log("userScores:", userScores);
+  console.log("userPercentages:", userPercentages);
 
   // flow, conciseness, clarity, relevance
-  const flow = userScores ? `${userScores[0]}%` : "0%";
-  const conciseness = userScores ? `${userScores[1]}%` : "0%";
-  const clarity = userScores ? `${userScores[2]}%` : "0%";
-  const relevance = userScores ? `${userScores[3]}%` : "0%";
+  // const flow = userScores ? `${userScores['Flow']}%` : "0%";
+  // const conciseness = userScores ? `${userScores['Conciseness']}%` : "0%";
+  // const clarity = userScores ? `${userScores['Clarity']}%` : "0%";
+  // const relevance = userScores ? `${userScores['Relevance']}%` : "0%";
+  const flow = userPercentages ? `${userPercentages['Flow']}%` : "0%";
+  const conciseness = userPercentages ? `${userPercentages['Conciseness']}%` : "0%";
+  const clarity = userPercentages ? `${userPercentages['Clarity']}%` : "0%";
+  const relevance = userPercentages ? `${userPercentages['Relevance']}%` : "0%";
+
   
   return (
     <div className="score-board" style={{ borderRight: '2px solid #f3f3f3' }}>

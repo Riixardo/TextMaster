@@ -12,12 +12,12 @@ export default function Messaging() {
   const [inputValue, setInputValue] = useState('');
   const [matchId, setMatchId] = useState(null); // Initialize match_id state
   const [leaderboard, setLeaderboard] = useState([]); // Initialize leaderboard state
-  const [loadingLeaderboard, setLoadingLeaderboard] = useState(false);
   const [isLoading, setLoading] = useState(true);
   const [timeLeft, setTimeLeft] = useState(300);
   const [threadId, setThreadId] = useState(null);
+  const [loadingLeaderboard, setLoadingLeaderboard] = useState(false);
   // for progress bar
-  // const [userScores, setUserScores] = useState(null);
+  const [userPercentages, setUserPercentages] = useState({});
 
   const router = useRouter();
 
@@ -51,7 +51,6 @@ export default function Messaging() {
       console.log('sending message', threadId);
       const response = await axios.post('http://127.0.0.1:5000/send_message', {
         user_id: userId,
-        // thread_id: 1020,
         thread_id: threadId,
         content: inputValue
       });
@@ -76,15 +75,23 @@ export default function Messaging() {
         content: JSON.stringify(response2.data)
       });
       setMessages(updatedMessages => [...updatedMessages, { text: JSON.stringify(response2.data), sender: 'AI' }]);
+      
 
-      // massive problem here
       // update scores here
       const x = await axios.post('http://127.0.0.1:5000/api/update_score', {
           match_id: matchId,
           userID: userId,
           new_scores: response2.data
-       })
+      });
       console.log(x);
+
+      // give progress bar percentages to scoreboard here
+      const percentages = await axios.post('http://127.0.0.1:5000/api/find_progress_percentage', {
+        match_id: matchId,
+        user_id: userId,
+      });
+
+      await setUserPercentages(percentages.data);
 
 
       console.log(updatedMessages);
@@ -175,18 +182,18 @@ export default function Messaging() {
     }
   }, [matchId, userId]);
 
-  useEffect(() => {
-    const sendUserScore = async () => {
+  // useEffect(() => {
+  //   const sendUserScore = async () => {
       
-      };
+  //     };
 
 
-    if (matchId && userId) {
-      const intervalId = setInterval(sendUserScore, 1000); // Send user score every 5 second
+  //   if (matchId && userId) {
+  //     const intervalId = setInterval(sendUserScore, 1000); // Send user score every 5 second
 
-      return () => clearInterval(intervalId); // Cleanup interval on component unmount
-    }
-  }, [matchId, userId]);
+  //     return () => clearInterval(intervalId); // Cleanup interval on component unmount
+  //   }
+  // }, [matchId, userId]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -222,8 +229,7 @@ if (!matchId || !userId || !threadId) {
         {loadingLeaderboard ? (
           <p>Loading leaderboard...</p>
         ) : (
-          // <Scoreboard user_id={userId} leaderboard={leaderboard} userScores={userScores}/>
-          <Scoreboard user_id={userId} leaderboard={leaderboard}/>
+          <Scoreboard user_id={userId} leaderboard={leaderboard} userPercentages={userPercentages} />
 
         )}
         <div className="flex-grow h-screen p-6 flex flex-col" style={{ background: '#ffffff' }}>

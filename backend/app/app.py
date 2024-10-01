@@ -63,6 +63,8 @@ def handle_join_room(data):
 def handle_leave_room(data):
     room = data['room']
     user = data['user']
+    gameInfo = GameInfo()
+    gameInfo.end_game(room)
     db_functions.leave_lobby(room, data['user_id'])
     players = db_functions.view_lobby(room)
     print(players)
@@ -305,56 +307,6 @@ def create_game():
     game = game_info.create_game(match_id, player_list)
     return jsonify({'message': 'Game created', 'game': game})
 
-@app.route('/api/update_score', methods=['POST'])
-def update_score():
-    data = request.json
-    match_id = data['match_id']
-    userID = data['userID']
-    new_scores = data['new_scores']
-    try:
-        game_info = GameInfo()
-        game_info.update_score(match_id, userID, new_scores)
-        response = jsonify({'message': 'Score updated successfully'})
-        response.status_code = 200
-    except Exception as e:
-        response = jsonify({'error': str(e)})
-        response.status_code = 500
-    return jsonify({'message': 'Score updated'})
-# from flask import make_response
-
-# @app.route('/api/update_score', methods=['POST'])
-# def update_score():
-#     data = request.json
-#     match_id = data['match_id']
-#     userID = data['userID']
-#     new_scores = data['new_scores']
-#     game_info = GameInfo()
-#     game_info.update_score(match_id, userID, new_scores)
-#     response = make_response(jsonify({'message': 'Score updated'}))
-#     response.headers.add("Access-Control-Allow-Origin", "*")
-#     return response
-
-# @app.after_request
-# def after_request(response):
-#     response.headers.add('Access-Control-Allow-Origin', '*')
-#     response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
-#     response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
-#     return response
-
-@app.route('/api/get_scoreboard', methods=['POST'])
-def get_leaderboard():
-    data = request.json
-    match_id = data.get('id')
-    if not match_id:
-        return jsonify({'error': 'match_id is required'}), 400
-
-    try:
-        game_info = GameInfo()
-        res = game_info.get_scoreboard(match_id)
-
-        return jsonify(res)
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
 
 @app.route('/api/end_game', methods=['POST'])
 def end_game():
@@ -389,7 +341,58 @@ def make_thread():
         return jsonify({'error': str(e)}), 500
   
 
+# --------------- Score Functions ---------------
+
+@app.route('/api/update_score', methods=['POST'])
+def update_score():
+    data = request.json
+    match_id = data['match_id']
+    userID = data['userID']
+    new_scores = data['new_scores']
+    try:
+        game_info = GameInfo()
+        game_info.update_score(match_id, userID, new_scores)
+        response = jsonify({'message': 'Score updated successfully'})
+        response.status_code = 200
+    except Exception as e:
+        response = jsonify({'error': str(e)})
+        response.status_code = 500
+    return jsonify({'message': 'Score updated'})
+
+@app.route('/api/get_scoreboard', methods=['POST'])
+def get_leaderboard():
+    data = request.json
+    match_id = data.get('id')
+    if not match_id:
+        return jsonify({'error': 'match_id is required'}), 400
+
+    try:
+        game_info = GameInfo()
+        res = game_info.get_scoreboard(match_id)
+
+        return jsonify(res)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
+@app.route('/api/find_progress_percentage', methods=['POST'])
+def find_percentage():
+    data = request.json
+    match_id = data.get('match_id')
+    userID = data.get('user_id')
+    if not match_id:
+        return jsonify({'error': 'match_id is required'}), 400
+
+    try:
+        game_info = GameInfo()
+        res = game_info.find_progress_percentage(match_id, userID)
+        return jsonify(res)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
 GameLeaderBoards = {}
+
+# {'chinatown': {'user1': {'Flow': 0, 'Conciseness': 0, 'Clarity': 0, 'Relevance': 0, 'prompt_count': 0} }}
 
 class GameInfo:
     def get_scoreboard(self, match_id):
@@ -408,32 +411,55 @@ class GameInfo:
         # Add new players to the leaderboard with a score of 0
         for player in player_list:
             if player not in GameLeaderBoards[match_id]:
-                GameLeaderBoards[match_id][player] = 0
+                GameLeaderBoards[match_id][player] = {'Flow': 0, 'Conciseness': 0, 'Clarity': 0, 'Relevance': 0, 'prompt_count': 0}
         
-        return self._helper(GameLeaderBoards[match_id])
+        return self._get_total_scores(GameLeaderBoards[match_id])
         
     def update_score(self,match_id, userID, new_scores):
-        total = 0
         print("\n\n\n\n new_scores", new_scores)
-        # for score in new_scores.keys():
-        #     # print("key: ", score)
-        #     if score != 'status':
-        #         total += new_scores[score]
         print('asdf')
         username = db_functions.user_id_to_username(userID)
-        GameLeaderBoards[match_id][username] += new_scores['Flow'] + new_scores['Conciseness'] + new_scores['Clarity'] + new_scores['Relevance']
+        GameLeaderBoards[match_id][username]['prompt_count'] += 1
+        print("niggers")
+        for key in new_scores.keys():
+            if key != 'status':
+                GameLeaderBoards[match_id][username][key] += new_scores[key]
+        # GameLeaderBoards[match_id][username] += new_scores['Flow'] + new_scores['Conciseness'] + new_scores['Clarity'] + new_scores['Relevance']
         # print("match_id", match_id)
         # print("userID", userID)
         print(GameLeaderBoards)
 
-    def _helper(self, score_dictionary):
-        res = []
-        for player in score_dictionary:
-            print(score_dictionary[player])
-            res.append([player, score_dictionary[player]])
+    def find_progress_percentage(self, match_id, userID):
+        username = db_functions.user_id_to_username(userID)
+        percentages = {}
+        print(GameLeaderBoards[match_id][username]['prompt_count'])
+        for key in GameLeaderBoards[match_id][username].keys():
+            if key != 'prompt_count':
+                percentages[key] = GameLeaderBoards[match_id][username][key] / GameLeaderBoards[match_id][username]['prompt_count']
+
+        return percentages
+    
+    def end_game(self, match_id):
+        if match_id in GameLeaderBoards:
+            del GameLeaderBoards[match_id]
+
+    def _get_total_scores(self, score_dictionary):
+        try:
+            res = []
+            for player in score_dictionary:
+                print(score_dictionary[player])
+                player_score = 0
+                for key in score_dictionary[player].keys():
+                    if key != 'prompt_count':
+                        player_score += score_dictionary[player][key]
+
+                res.append([player, player_score])
+            
+            res.sort(key=lambda x: x[1], reverse=True)
+            return res
         
-        res.sort(key=lambda x: x[1], reverse=True)
-        return res
+        except Exception as e:
+            return [["Error", str(e)]]
 
 
 if __name__ == '__main__':
